@@ -1,1 +1,0 @@
-            Para cada método, retorne **"true"** se o teste passou ou **"false"** se o teste falhou. 
