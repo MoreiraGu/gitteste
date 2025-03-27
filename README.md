@@ -78,6 +78,7 @@ para criar software, a interface de chatbot não é a melhor para este tipo de t
 | 🟥| Como desenvolvedor, quero que a IA analise os resultados dos testes unitários e mostre quais testes foram aprovados ou não. | 8 | 1 |
 | 🟥 | Como desenvolvedor, quero poder criar uma interface onde mostre o teste unitário simples do código que escrevi. | 3 | 1 |
 | 🟥 | Como desenvolvedor, quero um botão para executar os testes unitários. | 3 | 1 |
+| 🟨| Como desenvolvedor, quero uma tela onde contenha informações de como funciona o uso do projeto, para ajudar/orientar os usuarios. | 3 | 1 |
 
 ---
 
