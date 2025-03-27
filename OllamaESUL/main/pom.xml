@@ -14,6 +14,7 @@
 <artifactId>ollama4j</artifactId>
 <version>1.0.93</version>
 </dependency>
+
 </dependencies>
     <name>OllamaESUL</name>
 </project>
