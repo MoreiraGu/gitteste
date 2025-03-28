@@ -2,6 +2,7 @@ package GUI;
 import ferramentas.GeradorDeTesteJava;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 /**
  *
@@ -37,6 +38,7 @@ public class Prot11 extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(255, 0, 0));
+        setLocation(new java.awt.Point(300, 200));
 
         jPanel2.setBackground(new java.awt.Color(70, 70, 100));
 
@@ -160,8 +162,14 @@ public class Prot11 extends javax.swing.JFrame {
         TelaResposta t = new TelaResposta();
         
         try {
-            g.gerarTestes(AreaCodigo.getText(), t);
-            t.setVisible(true);
+            if (AreaCodigo.getText().equals("")){
+                JOptionPane.showMessageDialog(null, "A caixa de texto está vazia");
+            }
+            else{
+                  g.gerarTestes(AreaCodigo.getText(), t);
+                  t.setVisible(true);
+            }
+          
         } catch (Exception ex) {
             Logger.getLogger(Prot11.class.getName()).log(Level.SEVERE, null, ex);
         }
