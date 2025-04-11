@@ -89,6 +89,7 @@ para criar software, a interface de chatbot não é a melhor para este tipo de t
 | 🟥 | Como desenvolvedor, quero definir o modelo conceitual e lógico do banco de dados, para planejar de forma eficiente o armazenamento das informações. | 3 | 2 |
 | 🟥 | Como desenvolvedor, quero integrar o banco de dados ao sistema mesmo que de forma básica, para já começar a testar a persistência de dados. | 5 | 2 |
 | 🟨 | Como usuário, quero acessar o histórico de prompts enviados e suas respostas em uma tela própria, para consultar mais rapidamente interações passadas de forma clara e visual. | 8 | 2 |
+| 🟨 | Como desenvolvedor, Como cliente, eu quero um protótipo da interface principal, para que eu possa visualizar e validar antes do desenvolvimento. | 3 | 2 |
 | 🟨 | Como desenvolvedor, quero que a IA sugira refatorações de código, para melhorar a legibilidade e o desempenho do meu código. | 13 | 3 |
 | 🟥 | Como desenvolvedor, quero um modelo físico do banco de dados, para que eu possa implementar as tabelas, índices, chaves e outras estruturas de armazenamento no sistema de banco de dados, garantindo eficiência e desempenho para o uso real (em MySQL). | 8 | 3 |
 | 🟩 | Como desenvolvedor, quero uma interface de usuário mais intuitiva e personalizável. | 5 | 3 |
@@ -130,6 +131,7 @@ para criar software, a interface de chatbot não é a melhor para este tipo de t
 | 🟥 | Como desenvolvedor, quero definir o modelo conceitual e lógico do banco de dados, para planejar de forma eficiente o armazenamento das informações. | 3 | 2 |
 | 🟥 | Como desenvolvedor, quero integrar o banco de dados ao sistema mesmo que de forma básica, para já começar a testar a persistência de dados. | 5 | 2 |
 | 🟨 | Como usuário, quero acessar o histórico de prompts enviados e suas respostas em uma tela própria, para consultar mais rapidamente interações passadas de forma clara e visual. | 8 | 2 |
+| 🟨 | Como desenvolvedor, Como cliente, eu quero um protótipo da interface principal, para que eu possa visualizar e validar antes do desenvolvimento. | 3 | 2 |
 
 
 
