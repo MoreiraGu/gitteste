@@ -2,42 +2,38 @@ package ferramentas;
 
 import io.github.ollama4j.OllamaAPI;
 import io.github.ollama4j.models.response.OllamaResult;
-import io.github.ollama4j.utils.Options;
 import io.github.ollama4j.utils.OptionsBuilder;
-
-
+import io.github.ollama4j.utils.Options;
+import GUI.TelaResposta;
 
 public class MelhoradorDeCodigo {
-    public static void main(String[] args) throws Exception {
 
-        String host = "http://localhost:11434/";
-        OllamaAPI ollamaAPI = new OllamaAPI(host);
-        ollamaAPI.setRequestTimeoutSeconds(500);
+    private final OllamaAPI ollamaAPI;
+    private final String model;
+    private final Options options;
 
-        String model = "qwen2.5-coder:3b";
-        
-        Options options =
-                new OptionsBuilder()
-                        .setTemperature(0.5f)
-                        .build();
+    public MelhoradorDeCodigo(String host, String model, float temperature) {
+        this.ollamaAPI = new OllamaAPI(host);
+        this.ollamaAPI.setRequestTimeoutSeconds(500);
+        this.model = model;
 
-         String codigoParaComentar = """
-            public class Continhas {
-                      public static void main(String[] args) {
-                          int numero1 = 10;
-                          int numero2 = 5;
-                          int resultado;
+        this.options = new OptionsBuilder()
+                .setTemperature(temperature)
+                .build();
+    }
 
-                          System.out.println(numero1 + numero2)
-                          System.out.println(resultado);
-                          System.out.println(numero1 * numero2)
-                          System.out.println(numero1 / numero2);
-                      }
-                  }
-                                    """;
-        
-        
-        String prompt = """
+    public void melhorarCodigo(String codigoJava, TelaResposta telaResposta) throws Exception {
+        String prompt = gerarPrompt(codigoJava);
+        boolean raw = false;
+
+        OllamaResult result = ollamaAPI.generate(model, prompt, raw, options);
+        String respostaFormatada = result.getResponse().replace("\n", "<br>");
+
+        telaResposta.resposta.setText("<html><body style='width: 400px;'>" + respostaFormatada + "</body></html>");
+    }
+
+    private String gerarPrompt(String codigo) {
+        return """
         You are an expert in Java and object orientation.
         Your task:
         1. Read the code of a Java class provided.
@@ -57,15 +53,6 @@ public class MelhoradorDeCodigo {
         - Translate the entire output to Brazilian Portuguese, only Brazilian Portuguese.
         - Summarize the information objectively.
         - Do not add extra explanations beyond what was requested.
-         """ + codigoParaComentar;
-
-        boolean raw = false;
-        OllamaResult response = ollamaAPI.generate(model, prompt, raw, options);
-        String resposta = response.getResponse();
-
-        // Exibe a resposta no terminal
-        System.out.println("=== RESPOSTA DO OLLAMA ===");
-        System.out.println(resposta);
-        System.out.println("==========================");
+        """ + codigo;
     }
 }
