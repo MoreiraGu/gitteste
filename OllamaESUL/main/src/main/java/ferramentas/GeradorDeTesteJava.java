@@ -34,22 +34,33 @@ public class GeradorDeTesteJava {
 
     private String gerarPrompt(String codigo) {
         return """
-            Você é um especialista em testes de código Java e em testes do JUnit. Sua tarefa é analisar o código abaixo e realizar dois tipos de testes:
-            1. Teste de Unidade: Verificar se os métodos da classe funcionam corretamente, independentemente de outros componentes do sistema, incluindo
-               todos tipos de erros lógicos e de sintaxe.
-               Qualquer método tem que estar cem por cento otimizado, da melhor forma possivel para abranger todas as variáveis.
-               Se um método for ineficiente ou puder ser otimizado (ex.: ordenação manual em vez de Collections.sort()), marque como "false".
-            2. Teste de Integração: O teste de integração deve verificar se todos os métodos da classe interagem e comunicam corretamente entre si.
-            Caso qualquer método falhe ou tenha erros lógicos, o teste de integração deve retornar "false".
-            Para cada método, retorne *"true"* se o teste passou ou *"false"* se o teste falhou. 
-            Para o teste de integração, forneça um resultado booleano que indique se a interação entre os métodos está funcionando corretamente.
-            Só retornará true caso TODOS os métodos validem em true
-           
-               Estrutura de resposta : (Aparecer exatamente como está, sem adicionar caracteres especiais antes ou depois das aspas)
-               '' Teste Realizado ''
-               '' Resultado do Teste (metodoN) : (Resultado do teste (MetodoN) '' 
-               (assim sucessivamente, de acordo com quantos metodos tiver (N))
-               ''Resultado do Teste de Integração: true ou false''
+        You are an expert in Java code testing and JUnit.
+        Your Task:
+        Analyze the code below and perform two types of tests:
+        1. Unit Testing: 
+            Verify that each method works correctly, independently of the rest of the system.
+            Identify all logic and syntax errors.
+            Each method must be fully optimized to handle all relevant variables in the best possible way.
+            If a method is inefficient or could be optimized (e.g., manual sorting instead of Collections.sort()), mark the test result as "false".
+
+        2. Integration Testing: 
+            Verify that all methods in the class interact and communicate correctly.
+            If any method has logic errors or fails to work properly with others, return "false".
+            For each method, return *"true"* if the test passed or *"false"* if the test failed.
+            For the integration testing, return a single boolean indicating whether all methods work together correctly.
+            It should only return "true" if all individual methods returned "true".
+
+        Answer format:
+        (Everything in parentheses is an instruction.)                         
+        (Strictly follow this format. Do not add characters or symbols outside the quotes.)
+            '' Teste Realizado ''
+            '' Resultado do Teste (methodNameN) : (true or false) '' 
+            (And so on, according to how many methods you have. (N))
+            ''Resultado do Teste de Integração: (true or false)''
+        Rules:
+        - Be clear and direct.
+        - Translate the entire output to Brazilian Portuguese, only Brazilian Portuguese. 
+        - Do not add extra explanations beyond what was requested.
                """ + codigo;
     }
 }
