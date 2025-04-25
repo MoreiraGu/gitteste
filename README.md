@@ -97,44 +97,6 @@ para criar software, a interface de chatbot não é a melhor para este tipo de t
 
 ---
 
-# Backlog do Produto - Sprint 1 (CONCLUÍDA!)
-
-🟥 - Alta <br>
-🟨 - Média <br>
-🟩 - Baixa <br>
-
-| Prioridade | User Stories | Estimativa | Sprint |
-| ---------- | ------------ | ---------- | ------ |
-| 🟥 | Como desenvolvedor, quero uma interface de texto simples onde eu possa digitar código Java. | 3 | 1 |
-| 🟥 | Como desenvolvedor, quero que a IA analise os resultados dos testes unitários e mostre quais testes foram aprovados ou não. | 8 | 1 |
-| 🟥 | Como desenvolvedor, quero poder criar uma interface onde mostre o teste unitário simples do código que escrevi. | 3 | 1 |
-| 🟥 | Como desenvolvedor, quero um botão para executar os testes unitários. | 3 | 1 |
-| 🟨 | Como desenvolvedor, quero uma tela de orientações sobre o uso do projeto, para que os usuários possam entender seu funcionamento de forma clara e eficiente. | 3 | 1 |
-
-<br>
-
-# Backlog do Produto - Sprint 2 (EM ANDAMENTO!)
-
-🟥 - Alta <br>
-🟨 - Média <br>
-🟩 - Baixa <br>
-
-| Prioridade | User Stories | Estimativa | Sprint |
-| ---------- | ------------ | ---------- | ------ |
-| 🟨 | Como desenvolvedor, quero melhorar os prompts já existentes, para que as respostas sejam mais precisas e úteis. | 3 | 2 |
-| 🟥 | Como usuário do sistema, quero que o sistema verifique meu código e recomende mudanças, para que eu possa melhorar a qualidade do código. | 8 | 2 |
-| 🟥 | Como usuário, quero poder fazer upload de um arquivo .txt ou .java, para que o conteúdo seja exibido automaticamente no prompt. | 5 | 2 |
-| 🟩 | Como usuário, quero uma interface mais intuitiva e visualmente agradável, para que a experiencia de uso seja mais fluida. | 3 | 2 |
-| 🟩 | Como usuário, quero que a tela de resposta tenha melhor formatação e clareza, para que eu entenda melhor a resposta fornecida. | 3 | 2 |
-| 🟨 | Como usuário, quero que o código exibido tenha realce de sintaxe, para que a leitura e compreensão sejam mais claras. | 5 | 2 |
-| 🟨 | Como usuário, quero que a tela ajuda seja mais completa e acessível, para que eu entenda facilmente como usar todas as funcionalidades. | 5 | 2 |
-| 🟥 | Como desenvolvedor, quero definir o modelo conceitual e lógico do banco de dados, para planejar de forma eficiente o armazenamento das informações. | 3 | 2 |
-| 🟥 | Como desenvolvedor, quero integrar o banco de dados ao sistema mesmo que de forma básica, para já começar a testar a persistência de dados. | 5 | 2 |
-| 🟨 | Como usuário, quero acessar o histórico de prompts enviados e suas respostas em uma tela própria, para consultar mais rapidamente interações passadas de forma clara e visual. | 8 | 2 |
-| 🟨 | Como desenvolvedor, Como cliente, eu quero um protótipo da interface principal, para que eu possa visualizar e validar antes do desenvolvimento. | 3 | 2 |
-
-
-
 <br>
 # Contatos da Equipe
 
@@ -146,5 +108,4 @@ para criar software, a interface de chatbot não é a melhor para este tipo de t
 | Dev. Team  | Rodolfo Rodrigues Corbalan     | [![Linkedin Badge](https://img.shields.io/badge/Linkedin-blue?style=flat-square&logo=Linkedin&logoColor=white)](https://www.linkedin.com/in/rodolfo-rodrigues-corbalan-0148b510a/) <br> [![GitHub Badge](https://img.shields.io/badge/GitHub-111217?style=flat-square&logo=github&logoColor=white)](https://github.com/xRod-Rodriguesx) |
 | Dev. Team  | Uanderson Leonardo de Souza Silva   | [![Linkedin Badge](https://img.shields.io/badge/Linkedin-blue?style=flat-square&logo=Linkedin&logoColor=white)](https://www.linkedin.com/in/uanderson-leonardo-1aaa722a0/) <br> [![GitHub Badge](https://img.shields.io/badge/GitHub-111217?style=flat-square&logo=github&logoColor=white)](https://github.com/uandleon) |
 | Dev. Team  | Leandro Henrique Campos Silva  | [![Linkedin Badge](https://img.shields.io/badge/Linkedin-blue?style=flat-square&logo=Linkedin&logoColor=white)](https://www.linkedin.com/in/leandro-henrique-7b8262329/) <br> [![GitHub Badge](https://img.shields.io/badge/GitHub-111217?style=flat-square&logo=github&logoColor=white)](https://github.com/LeandroHCampos) |
-| Dev. Team  | Vinícius Roman Coral   | [![Linkedin Badge](https://img.shields.io/badge/Linkedin-blue?style=flat-square&logo=Linkedin&logoColor=white)](https://www.linkedin.com) <br> [![GitHub Badge](https://img.shields.io/badge/GitHub-111217?style=flat-square&logo=github&logoColor=white)](https://github.com/MidD3Vil) |
 | Dev. Team  | Gustavo Santos Moreira   | [![Linkedin Badge](https://img.shields.io/badge/Linkedin-blue?style=flat-square&logo=Linkedin&logoColor=white)](https://www.linkedin.com/in/gustavo-moreira-43120027b/) <br> [![GitHub Badge](https://img.shields.io/badge/GitHub-111217?style=flat-square&logo=github&logoColor=white)](https://github.com/MoreiraGu) |
