@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
@@ -19,6 +20,7 @@ import javax.swing.JOptionPane;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 /**
@@ -38,15 +40,32 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
         
     }
     private void configurarCaixaTexto() {
-        CaixaTexto = new RSyntaxTextArea(20, 90);
+        CaixaTexto = new RSyntaxTextArea();
         CaixaTexto.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
         CaixaTexto.setCodeFoldingEnabled(true);
         CaixaTexto.setAntiAliasingEnabled(true);
         CaixaTexto.setFont(new java.awt.Font("Consolas", java.awt.Font.PLAIN, 18));
         CaixaTexto.setBackground(new java.awt.Color(255, 255, 255));
         CaixaTexto.setForeground(new java.awt.Color(0, 0, 0));
+        try {
+            InputStream in = getClass().getResourceAsStream("/org/fife/ui/rsyntaxtextarea/themes/default.xml");
+            if (in == null) {
+                System.err.println("Arquivo de tema não encontrado!");
+            } else {
+                Theme theme = Theme.load(in);
+                theme.apply(CaixaTexto);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         
         String textoInicial = """
+                              public class Main {
+                                          public static void main(String[] args) {
+                                              System.out.println("Ol\u00e1, Mundo!");
+                                          }
+                                      }
+                              
                               """;
 
     CaixaTexto.setText(textoInicial);  // Setando o texto no RSyntaxTextArea
@@ -135,6 +154,8 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
             }
         });
 
+        jPanel3.setPreferredSize(new java.awt.Dimension(50, 446));
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -188,7 +209,7 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
                         .addGap(152, 152, 152))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 925, Short.MAX_VALUE)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(jButton4)
                                 .addGap(18, 18, 18)
