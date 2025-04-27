@@ -60,11 +60,8 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
         }
         
         String textoInicial = """
-                              public class Main {
-                                          public static void main(String[] args) {
-                                              System.out.println("Ol\u00e1, Mundo!");
-                                          }
-                                      }
+
+                             // Seu código aqui //
                               
                               """;
 
@@ -93,7 +90,7 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
         jButton6 = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jButton7 = new javax.swing.JButton();
-        jButton8 = new javax.swing.JButton();
+        btnAjuda = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -174,7 +171,12 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
             }
         });
 
-        jButton8.setText("Ajuda");
+        btnAjuda.setText("Ajuda");
+        btnAjuda.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAjudaActionPerformed(evt);
+            }
+        });
 
         jButton3.setBackground(new java.awt.Color(102, 102, 102));
         jButton3.setFont(new java.awt.Font("Inria Sans", 1, 30)); // NOI18N
@@ -199,7 +201,7 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
                         .addGap(41, 41, 41)
                         .addComponent(jButton7)
                         .addGap(18, 18, 18)
-                        .addComponent(jButton8)
+                        .addComponent(btnAjuda)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel4)
                         .addGap(18, 18, 18)
@@ -209,7 +211,7 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
                         .addGap(152, 152, 152))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 925, Short.MAX_VALUE)
+                            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 952, Short.MAX_VALUE)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(jButton4)
                                 .addGap(18, 18, 18)
@@ -231,7 +233,7 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jButton7)
-                            .addComponent(jButton8)
+                            .addComponent(btnAjuda)
                             .addComponent(jLabel4)
                             .addComponent(jButton5)
                             .addComponent(jButton6))
@@ -347,10 +349,15 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
                     }
     } catch (IOException ex) {
         JOptionPane.showMessageDialog(null, "Erro ao ler o arquivo: " + ex.getMessage());
-    }    
-                
-    }//GEN-LAST:event_jButton7ActionPerformed
     }
+}           
+    }//GEN-LAST:event_jButton7ActionPerformed
+
+    private void btnAjudaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAjudaActionPerformed
+            Ajuda telaAjuda = new Ajuda(); 
+            telaAjuda.setVisible(true); 
+    }//GEN-LAST:event_btnAjudaActionPerformed
+    
     
     /**
      * @param args the command line arguments
@@ -390,6 +397,7 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAjuda;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
@@ -397,7 +405,6 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
-    private javax.swing.JButton jButton8;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;

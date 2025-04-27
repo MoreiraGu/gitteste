@@ -23,7 +23,7 @@ public class TelaHistTeste extends javax.swing.JFrame {
     DefaultTableModel modelo = (DefaultTableModel) tabelaHistoricoT.getModel();
     modelo.setRowCount(0); // Limpa os dados atuais
 
-    try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/esulbd", "root", "rodsql");
+    try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/esulbd", "root", "fatec");
          Statement stmt = conn.createStatement();
          ResultSet rs = stmt.executeQuery("SELECT * FROM testes")) {
 
@@ -40,9 +40,9 @@ public class TelaHistTeste extends javax.swing.JFrame {
     } catch (SQLException e) {
         JOptionPane.showMessageDialog(this, "Erro ao carregar dados: " + e.getMessage());
     }
-
-}
     
+    
+}    
     public TelaHistTeste() {
      initComponents();
      setLocationRelativeTo(null);
@@ -77,6 +77,7 @@ public class TelaHistTeste extends javax.swing.JFrame {
                 "ID", "Data e Hora", "Entrada Usuário", "Saída IA"
             }
         ));
+        tabelaHistoricoT.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         jScrollPane1.setViewportView(tabelaHistoricoT);
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N

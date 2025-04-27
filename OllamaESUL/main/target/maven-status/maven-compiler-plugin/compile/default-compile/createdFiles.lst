@@ -1,5 +1,6 @@
 GUI\TelaPrincipalEsul$1.class
 GUI\TelaPrincipalEsul$6.class
+GUI\Ajuda$3.class
 GUI\TelaHistTeste.class
 GUI\TelaPrincipalEsul$3.class
 GUI\Ajuda.class
@@ -15,8 +16,10 @@ GUI\TelaPrincipalEsul.class
 GUI\TelaPrincipalEsul$2.class
 com\mycompany\main\Main.class
 GUI\TelaResposta$1.class
+GUI\Ajuda$2.class
 GUI\TelaHistMelhoria$2.class
 GUI\TelaHistTeste$1.class
+GUI\TelaPrincipalEsul$9.class
 GUI\TelaHistMelhoria$1.class
 ferramentas\MelhoradorDeCodigo.class
 GUI\Ajuda$1.class
