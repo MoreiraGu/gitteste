@@ -8,7 +8,7 @@ public class BD {
     // Configuração do banco de dados
     private static final String URL = "jdbc:mysql://localhost:3306/esulbd"; // Nome do seu banco de dados
     private static final String USER = "root"; // Seu usuário do banco de dados
-    private static final String PASSWORD = "rodsql"; // Sua senha do banco de dados
+    private static final String PASSWORD = "fatec"; // Sua senha do banco de dados
 
     // Método para salvar interação do usuário e resposta da IA
     public static void saveInteraction(String userInput, String aiResponse) {

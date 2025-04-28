@@ -46,6 +46,11 @@ public class TelaHistMelhoria extends javax.swing.JFrame {
     public TelaHistMelhoria() {
      initComponents();
      setLocationRelativeTo(null);
+      // Centralizar ID e DataHora
+     javax.swing.table.DefaultTableCellRenderer centerRenderer = new javax.swing.table.DefaultTableCellRenderer();
+     centerRenderer.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+     tabelaHistoricoM.getColumnModel().getColumn(0).setCellRenderer(centerRenderer); // ID
+     tabelaHistoricoM.getColumnModel().getColumn(1).setCellRenderer(centerRenderer); // DataHora
      carregarDados();
 }
 

@@ -46,6 +46,11 @@ public class TelaHistTeste extends javax.swing.JFrame {
     public TelaHistTeste() {
      initComponents();
      setLocationRelativeTo(null);
+      // Centralizar ID e DataHora
+     javax.swing.table.DefaultTableCellRenderer centerRenderer = new javax.swing.table.DefaultTableCellRenderer();
+     centerRenderer.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+     tabelaHistoricoT.getColumnModel().getColumn(0).setCellRenderer(centerRenderer); // ID
+     tabelaHistoricoT.getColumnModel().getColumn(1).setCellRenderer(centerRenderer); // DataHora
      carregarDados();
 }
 
