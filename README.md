@@ -23,8 +23,8 @@ Sprint            |   Início   |    Fim     | Status  |
 |Kick Off         | 24/02/2025 | 28/02/2025 | concluído |
 |01               | 10/03/2025 | 30/03/2025 | concluído |
 |Sprint Review 01 | 31/03/2025 | 04/04/2025 | concluído |
-|02               | 07/04/2025 | 27/04/2025 | em andamento |
-|Sprint Review 02 | 28/04/2025 | 02/05/2025 | a fazer |
+|02               | 07/04/2025 | 27/04/2025 | concluído |
+|Sprint Review 02 | 28/04/2025 | 02/05/2025 | em andamento |
 |03               | 05/05/2025 | 25/05/2025 | a fazer |
 |Sprint Review 03 | 26/05/2025 | 28/05/2025 | a fazer |
 |Feira de Soluções| 29/05/2025 | 29/05/2025 | a fazer |
