@@ -90,7 +90,6 @@ para criar software, a interface de chatbot não é a melhor para este tipo de t
 | 🟥 | Como desenvolvedor, quero integrar o banco de dados ao sistema mesmo que de forma básica, para já começar a testar a persistência de dados. | 5 | 2 |
 | 🟨 | Como usuário, quero acessar o histórico de prompts enviados e suas respostas em uma tela própria, para consultar mais rapidamente interações passadas de forma clara e visual. | 8 | 2 |
 | 🟨 | Como desenvolvedor, Como cliente, eu quero um protótipo da interface principal, para que eu possa visualizar e validar antes do desenvolvimento. | 3 | 2 |
-| 🟥 | Como usuário, quero executar comandos Git básicos diretamente da IDE, como clonar, dar push e commit, usando a biblioteca JGit, para controlar o código com versionamento simples. | 13 | 3 |
 | 🟥 | Como usuário, quero janelas separadas para o código principal, testes e melhorias, para organizar melhor o que estou desenvolvendo. | 13 | 3 |
 | 🟨 | Como usuário, quero ver a saída da execução do código em um terminal na parte inferior da IDE, ativado por um botão ou atalho. | 6 | 3 |
 | 🟥 | Como usuário, quero uma barra lateral com atalhos como modo escuro/claro, para ter acesso rápido a funcionalidades da IDE. | 6 | 3 |
