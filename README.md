@@ -58,7 +58,7 @@ para criar software, a interface de chatbot não é a melhor para este tipo de t
         <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original-wordmark.svg" width="80px" />  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg" width="80px" /> <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" width="80px" />
       </li>
       <li>
-        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vscode/vscode-original.svg" width="80px" /> <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/figma/figma-original.svg" width="80px"> <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jira/jira-original-wordmark.svg" width="80px" />
+        <img src="https://registry.npmmirror.com/@lobehub/icons-static-png/1.45.0/files/light/ollama.png" width="80px" /> <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/figma/figma-original.svg" width="80px"> <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jira/jira-original-wordmark.svg" width="80px" /> <img src="https://images.sftcdn.net/images/t_app-icon-m/p/8a766988-96d4-11e6-b61a-00163ec9f5fa/3944872222/netbeans-ide-4037776803.png" width="80px" />
       </li>
    </ul>
 </p>
