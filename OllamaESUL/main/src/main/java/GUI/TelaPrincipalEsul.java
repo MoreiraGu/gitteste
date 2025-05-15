@@ -12,11 +12,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
+import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JFrame;
+import org.codehaus.janino.SimpleCompiler;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
@@ -457,15 +460,42 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
     }//GEN-LAST:event_btnAjudaActionPerformed
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
-        // Botão Run
-        jPanelTerminal.setVisible(true); // Mostra o terminal
+        jPanelTerminal.setVisible(true);
+
+     
+        jTextArea1.setText("");
+
         
-        // Pega data e hora atual
         java.time.LocalDateTime agora = java.time.LocalDateTime.now();
         java.time.format.DateTimeFormatter formato = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-
-        // Exibe a mensagem no terminal
         jTextArea1.append("Terminal iniciado em: " + agora.format(formato) + "\n");
+
+        
+        TextAreaOutputStream taOutputStream = new TextAreaOutputStream(jTextArea1);
+        PrintStream printStream = new PrintStream(taOutputStream, true);
+        System.setOut(printStream);
+        System.setErr(printStream);
+
+        
+        String codigo = CaixaTexto.getText(); 
+        try {
+          
+            SimpleCompiler compiler = new SimpleCompiler();
+            compiler.cook(codigo);
+
+          
+            Class<?> clazz = compiler.getClassLoader().loadClass("Main");
+
+           
+            Method metodoMain = clazz.getMethod("main", String[].class);
+            metodoMain.invoke(null, (Object) new String[] {}); 
+
+        } catch (Exception e) {
+            
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Erro ao executar o código: " + e.getMessage());
+        }
+
     }//GEN-LAST:event_jButton8ActionPerformed
 
     private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
