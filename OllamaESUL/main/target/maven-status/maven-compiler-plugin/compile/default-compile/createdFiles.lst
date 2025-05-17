@@ -15,6 +15,7 @@ GUI\TelaHistTeste$1.class
 ferramentas\MelhoradorDeCodigo.class
 GUI\Ajuda$1.class
 GUI\TelaHistMelhoria.class
+GUI\FileTreeCellRenderer.class
 GUI\TelaPrincipalEsul$4.class
 GUI\TextAreaOutputStream.class
 GUI\TelaPrincipalEsul$11.class

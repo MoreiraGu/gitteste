@@ -25,6 +25,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JFrame;
 import org.codehaus.janino.SimpleCompiler;
 import java.awt.Color;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
@@ -51,8 +56,52 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
         painelCodigo = jPanel3;
         setLocationRelativeTo(null);
         configurarCaixaTexto();
+        jTreeArquivos.setCellRenderer(new FileTreeCellRenderer());
+        jTreeArquivos.addTreeSelectionListener(new TreeSelectionListener() {
+            @Override
+            public void valueChanged(TreeSelectionEvent e) {
+                // --- Cole AQUI o código COMPLETO do TreeSelectionListener que eu te dei antes ---
+                // (Aquele que obtém o nó, verifica se é File, lê o arquivo e atualiza CaixaTexto)
+
+                DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) jTreeArquivos.getLastSelectedPathComponent();
+
+                if (selectedNode == null) {
+                    CaixaTexto.setText("");
+                    return;
+                }
+
+                Object userObject = selectedNode.getUserObject();
+
+                if (userObject instanceof File) {
+                    File file = (File) userObject;
+
+                    if (file.isFile()) {
+                        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                            CaixaTexto.setText("");
+                            String line;
+                            while ((line = reader.readLine()) != null) {
+                                CaixaTexto.append(line + "\n");
+                            }
+                             CaixaTexto.setCaretPosition(0); // Volta para o topo
+                        } catch (IOException ex) {
+                            JOptionPane.showMessageDialog(TelaPrincipalEsul.this,
+                                    "Erro ao ler o arquivo: " + ex.getMessage(),
+                                    "Erro de Leitura de Arquivo", JOptionPane.ERROR_MESSAGE);
+                            CaixaTexto.setText("Erro ao carregar o arquivo: " + ex.getMessage());
+                        }
+                    } else {
+                        CaixaTexto.setText(""); // Limpa se for diretório
+                    }
+                } else {
+                    CaixaTexto.setText(""); // Limpa se não for File
+                }
+                // --- Fim do código do TreeSelectionListener ---
+            }
+        });
         
-    }
+       
+    }    
+       
     private void configurarCaixaTexto() {
         CaixaTexto = new RSyntaxTextArea();
         CaixaTexto.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
@@ -114,6 +163,8 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
         jButton9 = new javax.swing.JButton();
         jButton10 = new javax.swing.JButton();
         btnAjuda = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTreeArquivos = new javax.swing.JTree();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem3 = new javax.swing.JMenuItem();
@@ -126,6 +177,7 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(102, 102, 102));
+        setSize(new java.awt.Dimension(1300, 800));
 
         jPanel1.setBackground(new java.awt.Color(16, 22, 20));
         jPanel1.setPreferredSize(new java.awt.Dimension(1920, 1080));
@@ -188,7 +240,7 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGap(0, 1340, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -270,7 +322,7 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
                     .addComponent(jScrollPane1)
                     .addGroup(jPanelTerminalLayout.createSequentialGroup()
                         .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 830, Short.MAX_VALUE)
                         .addComponent(jButton10)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton9)))
@@ -300,16 +352,27 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
             }
         });
 
+        jScrollPane2.setForeground(new java.awt.Color(255, 211, 50));
+
+        jTreeArquivos.setBackground(new java.awt.Color(16, 22, 20));
+        jTreeArquivos.setForeground(new java.awt.Color(255, 211, 94));
+        javax.swing.tree.DefaultMutableTreeNode treeNode1 = new javax.swing.tree.DefaultMutableTreeNode("root");
+        jTreeArquivos.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
+        jScrollPane2.setViewportView(jTreeArquivos);
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(45, 45, 45)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 1340, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
                         .addComponent(jButton7)
                         .addGap(62, 62, 62)
                         .addComponent(jButton3)
@@ -319,47 +382,50 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
                         .addComponent(jButton8)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 84, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel4)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(jButton6)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jButton5)
-                                .addGap(57, 57, 57)
-                                .addComponent(btnAjuda))
-                            .addComponent(jLabel4)))
-                    .addComponent(jPanelTerminal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 1300, Short.MAX_VALUE))
-                .addContainerGap(64, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnAjuda))))
+                    .addComponent(jPanelTerminal, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(370, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(18, 18, 18)
-                .addComponent(jLabel1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnAjuda, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(jPanel1Layout.createSequentialGroup()
-                            .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(1, 1, 1)))
-                    .addComponent(jButton8, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 509, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 16, Short.MAX_VALUE)
-                .addComponent(jPanelTerminal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(17, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel1)
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 421, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(btnAjuda, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(jPanel1Layout.createSequentialGroup()
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGap(1, 1, 1)))
+                            .addComponent(jButton8, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 509, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(29, 29, 29)
+                        .addComponent(jPanelTerminal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(49, Short.MAX_VALUE))
         );
 
         jPanel3.getAccessibleContext().setAccessibleDescription("");
@@ -414,12 +480,12 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 1574, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 1340, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 794, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 794, Short.MAX_VALUE)
         );
 
         pack();
@@ -493,21 +559,85 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-        JFileChooser fileChooser = new JFileChooser();
-                int result = fileChooser.showOpenDialog(null);
-                
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    File selectedFile = fileChooser.getSelectedFile();
-                try (BufferedReader reader = new BufferedReader(new FileReader(selectedFile))) {
-                    CaixaTexto.setText(""); // Limpa a área de texto antes
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                    CaixaTexto.append(line + "\n"); // Adiciona linha por linha
-                    }
+           JFileChooser fileChooser = new JFileChooser();
+
+// Opcional: define o modo de seleção (apenas arquivos, diretórios ou ambos)
+// fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY); // Apenas arquivos
+// fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); // Apenas diretórios
+// fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES); // Ambos (padrão)
+
+int result = fileChooser.showOpenDialog(null); // Use o seu componente pai em vez de null, ex: this
+
+if (result == JFileChooser.APPROVE_OPTION) {
+    File selectedFile = fileChooser.getSelectedFile();
+
+    // --- PARTE EXISTENTE: LER O ARQUIVO E EXIBIR NO CaixaTexto ---
+    try (BufferedReader reader = new BufferedReader(new FileReader(selectedFile))) {
+        CaixaTexto.setText(""); // Limpa a área de texto antes
+        String line;
+        while ((line = reader.readLine()) != null) {
+            CaixaTexto.append(line + "\n"); // Adiciona linha por linha
+        }
     } catch (IOException ex) {
         JOptionPane.showMessageDialog(null, "Erro ao ler o arquivo: " + ex.getMessage());
     }
-}           
+    // -----------------------------------------------------------
+
+
+    // --- NOVA PARTE: ADICIONAR A ESTRUTURA DO ARQUIVO/DIRETÓRIO NA JTree ---
+
+    DefaultMutableTreeNode rootNode;
+    File rootFile;
+    File parentDir = selectedFile.getParentFile();
+
+    // Decide qual será o nó raiz da árvore: o diretório pai ou o próprio arquivo
+    if (parentDir != null) {
+        rootFile = parentDir; // O diretório pai será a raiz
+        // Cria o nó raiz usando o objeto File (o DefaultTreeCellRenderer exibirá o nome)
+        rootNode = new DefaultMutableTreeNode(rootFile);
+
+        // Adiciona os filhos (arquivos e diretórios) do diretório pai
+        File[] children = parentDir.listFiles();
+        if (children != null) {
+            for (File child : children) {
+                // Cria um nó para cada arquivo/diretório dentro do pai
+                DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(child);
+                rootNode.add(childNode);
+            }
+        }
+    } else {
+        // Se não há diretório pai (ex: selecionou a raiz de uma unidade),
+        // o próprio arquivo selecionado será o nó raiz
+        rootFile = selectedFile;
+        rootNode = new DefaultMutableTreeNode(rootFile);
+        // Neste caso, não adicionamos filhos porque a árvore é apenas o arquivo raiz
+    }
+
+    // Cria o modelo da árvore com o nó raiz
+    DefaultTreeModel treeModel = new DefaultTreeModel(rootNode);
+
+    // Define o modelo na sua JTree (usando o nome correto agora)
+    jTreeArquivos.setModel(treeModel);
+
+    // Opcional: Encontrar e selecionar o nó correspondente ao arquivo escolhido
+    // Isso torna o arquivo selecionado visível e destacado na árvore.
+    DefaultMutableTreeNode nodeToSelect = findNode(rootNode, selectedFile);
+    if (nodeToSelect != null) {
+        // Cria o caminho para o nó encontrado
+        TreePath path = new TreePath(nodeToSelect.getPath());
+        // Define o caminho selecionado na árvore
+        jTreeArquivos.setSelectionPath(path);
+
+        // Opcional: Expande o nó pai para garantir que o arquivo selecionado seja visível
+        if (path.getParentPath() != null) {
+             jTreeArquivos.expandPath(path.getParentPath());
+        } else {
+             // Se o arquivo selecionado é a raiz, apenas expande a raiz (se necessário)
+             jTreeArquivos.expandPath(path);
+        }
+    }
+    // -------------------------------------------------------------------------
+}
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void btnAjudaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAjudaActionPerformed
@@ -668,6 +798,12 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanelTerminal;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTree jTreeArquivos;
     // End of variables declaration//GEN-END:variables
+
+    private DefaultMutableTreeNode findNode(DefaultMutableTreeNode rootNode, File selectedFile) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }

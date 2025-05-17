@@ -2,7 +2,6 @@ package com.mycompany.main;
 
 import GUI.*;
 import com.formdev.flatlaf.FlatDarkLaf;
-import com.formdev.flatlaf.FlatLightLaf;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -27,7 +26,11 @@ public class Main {
         UIManager.put("Table.showHorizontalLines", true);
         UIManager.put("Table.showVerticalLines", false);
         UIManager.put("Table.gridColor", new Color(224, 224, 224)); // Linhas sutis
-//
+        UIManager.put("Tree.selectionBackground", new Color(255,211,54));
+        UIManager.put("Tree.selectionForeground", new Color(47,58,65));
+        UIManager.put("Tree.background", Color.WHITE);
+        UIManager.put("Tree.foreground", Color.DARK_GRAY);
+        UIManager.put("Tree.font", new Font("Inria Sans", Font.ITALIC, 12));
 //        // Cabeçalho centralizado
         UIManager.put("TableHeader.centerTableColumnLabels", true);
 //
