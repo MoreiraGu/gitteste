@@ -6,6 +6,7 @@ package GUI;
 
 import esulDAO.BD;
 import ferramentas.GeradorDeTesteJava;
+import GUI.ProjectCompiler;
 import ferramentas.MelhoradorDeCodigo;
 import java.awt.Color;
 import java.io.BufferedReader;
@@ -50,6 +51,8 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
     
     private RSyntaxTextArea CaixaTexto;  
     private final javax.swing.JPanel painelCodigo; 
+    private DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("Projetos"); // Nó raiz para múltiplos projetos
+    private DefaultTreeModel treeModel = new DefaultTreeModel(rootNode);
     private File arquivoAtual;
 
 
@@ -58,6 +61,7 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
         getRootPane().putClientProperty("JRootPane.titleBarForeground", Color.WHITE);
         
         initComponents();
+        jTreeArquivos.setModel(treeModel); 
         setIconImage(new ImageIcon(getClass().getResource("/Imagens/esul.png")).getImage());
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         jPanelTerminal.setVisible(false);
@@ -634,93 +638,40 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
           TelaHistMelhoria telaHistorico = new TelaHistMelhoria(); 
           telaHistorico.setVisible(true); 
     }//GEN-LAST:event_jButton6ActionPerformed
-
+    private void printTreeStructure(DefaultMutableTreeNode node, String indent) {
+    System.out.println(indent + node.getUserObject());
+    for (int i = 0; i < node.getChildCount(); i++) {
+        printTreeStructure((DefaultMutableTreeNode) node.getChildAt(i), indent + "  ");
+    }
+}
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-        JFileChooser fileChooser = new JFileChooser();
-        
-        // Configurar para aceitar tanto arquivos quanto diretórios
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        fileChooser.setDialogTitle("Abrir Projeto ou Arquivo Java");
-        fileChooser.setApproveButtonText("Abrir");
-        
-        // Adicionar filtro para arquivos .java
-        fileChooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
-            @Override
-            public boolean accept(File f) {
-                return f.isDirectory() || f.getName().toLowerCase().endsWith(".java");
-            }
-            
-            @Override
-            public String getDescription() {
-                return "Arquivos Java (*.java) e Diretórios";
-            }
-        });
-        
+  JFileChooser fileChooser = new JFileChooser();
+
+        // Configurar para aceitar apenas diretórios
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fileChooser.setDialogTitle("Abrir Projeto Java");
+        fileChooser.setApproveButtonText("Abrir Projeto");
+
         int result = fileChooser.showOpenDialog(this);
 
         if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            
-            if (selectedFile.isFile() && !selectedFile.getName().toLowerCase().endsWith(".java")) {
-                JOptionPane.showMessageDialog(this,
-                    "Por favor, selecione um arquivo .java ou uma pasta de projeto.",
-                    "Tipo de Arquivo Inválido",
-                    JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-            
-            // Criar o nó raiz
-            DefaultMutableTreeNode rootNode;
-            
-            if (selectedFile.isDirectory()) {
-                // Se for um diretório, criar árvore completa
-                rootNode = new DefaultMutableTreeNode(selectedFile);
-                addFilesToTree(selectedFile, rootNode);
-            } else {
-                // Se for um arquivo .java
-                // Mostrar aviso sobre abrir pasta
-                int response = JOptionPane.showConfirmDialog(this,
-                    "Você está abrindo um arquivo individual.\n" +
-                    "Para trabalhar com um projeto completo, é recomendado abrir a pasta do projeto.\n\n" +
-                    "Deseja continuar mesmo assim?",
-                    "Abrir Arquivo Individual",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.WARNING_MESSAGE);
-                
-                if (response != JOptionPane.YES_OPTION) {
-                    return;
-                }
-                
-                // Criar árvore apenas com o arquivo
-                rootNode = new DefaultMutableTreeNode(selectedFile);
-            }
-            
-            // Criar e definir o modelo da árvore
-            DefaultTreeModel treeModel = new DefaultTreeModel(rootNode);
-            jTreeArquivos.setModel(treeModel);
-            
-            // Expandir o nó raiz
-            jTreeArquivos.expandPath(new TreePath(rootNode.getPath()));
-            
-            // Se for um arquivo, carregar seu conteúdo no editor
-            if (selectedFile.isFile()) {
-                try (BufferedReader reader = new BufferedReader(new FileReader(selectedFile))) {
-                    CaixaTexto.setText("");
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        CaixaTexto.append(line + "\n");
-                    }
-                    CaixaTexto.setCaretPosition(0);
-                } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(this,
-                        "Erro ao ler o arquivo: " + ex.getMessage(),
-                        "Erro de Leitura",
-                        JOptionPane.ERROR_MESSAGE);
-                }
-            }
+            File selectedDirectory = fileChooser.getSelectedFile();
+
+            // Criar um novo nó para o projeto selecionado
+            DefaultMutableTreeNode projectNode = new DefaultMutableTreeNode(selectedDirectory);
+            addFilesToTree(selectedDirectory, projectNode);
+
+            // Adicionar o nó do projeto ao nó raiz
+            treeModel.insertNodeInto(projectNode, rootNode, rootNode.getChildCount());
+
+            // Expandir o nó do projeto
+            jTreeArquivos.expandPath(new TreePath(projectNode.getPath()));
+
+            // Imprimir a estrutura da árvore APÓS adicionar o projeto
+            printTreeStructure(rootNode, "");
         }
-    }                                        
-    
+    }
+
     private void addFilesToTree(File directory, DefaultMutableTreeNode parentNode) {
         File[] files = directory.listFiles();
         if (files != null) {
@@ -730,73 +681,70 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
                 if (!f1.isDirectory() && f2.isDirectory()) return 1;
                 return f1.getName().compareToIgnoreCase(f2.getName());
             });
-            
+
             for (File file : files) {
                 // Ignorar arquivos que não são .java
                 if (file.isFile() && !file.getName().toLowerCase().endsWith(".java")) {
                     continue;
                 }
-                
+
                 DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(file);
                 parentNode.add(childNode);
-                
+
                 // Se for um diretório, adicionar seus arquivos recursivamente
                 if (file.isDirectory()) {
                     addFilesToTree(file, childNode);
                 }
             }
         }
-
-    }//GEN-LAST:event_jButton7ActionPerformed
         
+    }//GEN-LAST:event_jButton7ActionPerformed
+     
     private void btnAjudaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAjudaActionPerformed
             Ajuda telaAjuda = new Ajuda(); 
             telaAjuda.setVisible(true); 
     }//GEN-LAST:event_btnAjudaActionPerformed
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
-       jPanelTerminal.setVisible(true);
-        jTextArea1.setText("");
+                jPanelTerminal.setVisible(true);
+                jTextArea1.setText("");
+                ProjectCompiler p = new ProjectCompiler(jTreeArquivos, jTextArea1);
+                java.time.LocalDateTime agora = java.time.LocalDateTime.now();
+                java.time.format.DateTimeFormatter formato = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+                jTextArea1.append("Terminal iniciado em: " + agora.format(formato) + "\n");
 
-        java.time.LocalDateTime agora = java.time.LocalDateTime.now();
-        java.time.format.DateTimeFormatter formato = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-        jTextArea1.append("Terminal iniciado em: " + agora.format(formato) + "\n");
+                // Configurar redirecionamento de saída
+                TextAreaOutputStream taOutputStream = new TextAreaOutputStream(jTextArea1);
+                PrintStream printStream = new PrintStream(taOutputStream, true);
+                System.setOut(printStream);
+                System.setErr(printStream);
 
-        // Configurar redirecionamento de saída
-        TextAreaOutputStream taOutputStream = new TextAreaOutputStream(jTextArea1);
-        PrintStream printStream = new PrintStream(taOutputStream, true);
-        System.setOut(printStream);
-        System.setErr(printStream);
+                try {
+                    DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) jTreeArquivos.getLastSelectedPathComponent();
+                    File executionDirectory = null;
 
-        try {
-            // Verificar se há arquivos na JTree
-            DefaultMutableTreeNode root = (DefaultMutableTreeNode) jTreeArquivos.getModel().getRoot();
-            boolean hasFiles = false;
-            
-            // Verifica se o nó raiz tem filhos e se algum deles é um arquivo
-            if (root != null) {
-                for (int i = 0; i < root.getChildCount(); i++) {
-                    DefaultMutableTreeNode child = (DefaultMutableTreeNode) root.getChildAt(i);
-                    if (child.getUserObject() instanceof File) {
-                        hasFiles = true;
-                        break;
+                    if (selectedNode != null) {
+                        Object userObject = selectedNode.getUserObject();
+                        if (userObject instanceof File && ((File) userObject).isDirectory()) {
+                            executionDirectory = (File) userObject;
+                        } else if (userObject instanceof File && ((File) userObject).getName().endsWith(".java")) {
+                            executionDirectory = ((File) userObject).getParentFile();
+                        }
                     }
+
+                    if (executionDirectory != null) {
+                        // Há um diretório selecionado na JTree
+                        p.executarProjeto(executionDirectory);
+                    } else {
+                        // Se nenhum diretório estiver selecionado, compile o conteúdo do editor
+                        ProjectCompiler compilerEditor = new ProjectCompiler(jTextArea1, CaixaTexto.getText());
+                        compilerEditor.executarProjeto(null); // Passa null para indicar que não há diretório selecionado
+                    }
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Erro ao executar o projeto: " + ex.getMessage());
                 }
-            }
-            
-            if (!hasFiles) {
-                // Se não há arquivos, compilar diretamente do CaixaTexto
-                ProjectCompiler compiler = new ProjectCompiler(jTextArea1, CaixaTexto.getText());
-                compiler.executarProjeto();
-            } else {
-                // Se há arquivos, compilar normalmente
-                ProjectCompiler compiler = new ProjectCompiler(jTreeArquivos, jTextArea1);
-                compiler.executarProjeto();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Erro ao executar o projeto: " + e.getMessage());
-        }
     }//GEN-LAST:event_jButton8ActionPerformed
 
     private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
