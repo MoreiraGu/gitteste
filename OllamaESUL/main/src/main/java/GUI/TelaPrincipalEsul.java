@@ -35,6 +35,12 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
+import javax.swing.InputMap;
+import javax.swing.ActionMap;
+import javax.swing.KeyStroke;
+import javax.swing.AbstractAction;
+import java.awt.event.ActionEvent;
+import java.util.Arrays;
 
 /**
  *
@@ -44,6 +50,8 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
     
     private RSyntaxTextArea CaixaTexto;  
     private final javax.swing.JPanel painelCodigo; 
+    private File arquivoAtual;
+
 
     public TelaPrincipalEsul() {
         getRootPane().putClientProperty("JRootPane.titleBarBackground", new Color(16,22,20));
@@ -60,13 +68,11 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
         jTreeArquivos.addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent e) {
-                // --- Cole AQUI o código COMPLETO do TreeSelectionListener que eu te dei antes ---
-                // (Aquele que obtém o nó, verifica se é File, lê o arquivo e atualiza CaixaTexto)
-
                 DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) jTreeArquivos.getLastSelectedPathComponent();
 
                 if (selectedNode == null) {
                     CaixaTexto.setText("");
+                    arquivoAtual = null;
                     return;
                 }
 
@@ -82,24 +88,25 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
                             while ((line = reader.readLine()) != null) {
                                 CaixaTexto.append(line + "\n");
                             }
-                             CaixaTexto.setCaretPosition(0); // Volta para o topo
+                            CaixaTexto.setCaretPosition(0); // Volta para o topo
+                            arquivoAtual = file; // Atualiza o arquivo atual
                         } catch (IOException ex) {
                             JOptionPane.showMessageDialog(TelaPrincipalEsul.this,
                                     "Erro ao ler o arquivo: " + ex.getMessage(),
                                     "Erro de Leitura de Arquivo", JOptionPane.ERROR_MESSAGE);
                             CaixaTexto.setText("Erro ao carregar o arquivo: " + ex.getMessage());
+                            arquivoAtual = null;
                         }
                     } else {
                         CaixaTexto.setText(""); // Limpa se for diretório
+                        arquivoAtual = null;
                     }
                 } else {
                     CaixaTexto.setText(""); // Limpa se não for File
+                    arquivoAtual = null;
                 }
-                // --- Fim do código do TreeSelectionListener ---
             }
         });
-        
-       
     }    
        
     private void configurarCaixaTexto() {
@@ -123,12 +130,86 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
         }
         
         String textoInicial = """
-
                              // Seu código aqui //
-                              
-                              """;
+                             """;
+        CaixaTexto.setText(textoInicial);
 
-    CaixaTexto.setText(textoInicial);  // Setando o texto no RSyntaxTextArea
+        // Configurar atalhos de teclado
+        InputMap inputMap = CaixaTexto.getInputMap();
+        ActionMap actionMap = CaixaTexto.getActionMap();
+        
+        // Ctrl+S para salvar no arquivo atual
+        KeyStroke ctrlS = KeyStroke.getKeyStroke("control S");
+        inputMap.put(ctrlS, "saveFile");
+        actionMap.put("saveFile", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (arquivoAtual != null) {
+                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(arquivoAtual))) {
+                        writer.write(CaixaTexto.getText());
+                        JOptionPane.showMessageDialog(TelaPrincipalEsul.this, 
+                            "Arquivo salvo com sucesso!", 
+                            "Sucesso", 
+                            JOptionPane.INFORMATION_MESSAGE);
+                    } catch (IOException ex) {
+                        JOptionPane.showMessageDialog(TelaPrincipalEsul.this,
+                            "Erro ao salvar o arquivo: " + ex.getMessage(),
+                            "Erro",
+                            JOptionPane.ERROR_MESSAGE);
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(TelaPrincipalEsul.this,
+                        "Nenhum arquivo aberto para salvar. Use Ctrl+Shift+S para salvar em um novo arquivo.",
+                        "Aviso",
+                        JOptionPane.WARNING_MESSAGE);
+                }
+            }
+        });
+        
+        // Ctrl+Shift+S para salvar como
+        KeyStroke ctrlShiftS = KeyStroke.getKeyStroke("control shift S");
+        inputMap.put(ctrlShiftS, "saveAs");
+        actionMap.put("saveAs", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
+                    @Override
+                    public boolean accept(File f) {
+                        return f.isDirectory() || f.getName().toLowerCase().endsWith(".java");
+                    }
+                    
+                    @Override
+                    public String getDescription() {
+                        return "Arquivos Java (*.java)";
+                    }
+                });
+                
+                int result = fileChooser.showSaveDialog(TelaPrincipalEsul.this);
+                
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    File selectedFile = fileChooser.getSelectedFile();
+                    // Garantir que o arquivo tenha extensão .java
+                    if (!selectedFile.getName().toLowerCase().endsWith(".java")) {
+                        selectedFile = new File(selectedFile.getAbsolutePath() + ".java");
+                    }
+                    
+                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(selectedFile))) {
+                        writer.write(CaixaTexto.getText());
+                        arquivoAtual = selectedFile; // Atualiza o arquivo atual
+                        JOptionPane.showMessageDialog(TelaPrincipalEsul.this,
+                            "Arquivo salvo com sucesso!",
+                            "Sucesso",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    } catch (IOException ex) {
+                        JOptionPane.showMessageDialog(TelaPrincipalEsul.this,
+                            "Erro ao salvar o arquivo: " + ex.getMessage(),
+                            "Erro",
+                            JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        });
 
         RTextScrollPane scrollPane = new RTextScrollPane(CaixaTexto);
         painelCodigo.setLayout(new java.awt.BorderLayout());
@@ -555,94 +636,126 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-           JFileChooser fileChooser = new JFileChooser();
+        JFileChooser fileChooser = new JFileChooser();
+        
+        // Configurar para aceitar tanto arquivos quanto diretórios
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        fileChooser.setDialogTitle("Abrir Projeto ou Arquivo Java");
+        fileChooser.setApproveButtonText("Abrir");
+        
+        // Adicionar filtro para arquivos .java
+        fileChooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
+            @Override
+            public boolean accept(File f) {
+                return f.isDirectory() || f.getName().toLowerCase().endsWith(".java");
+            }
+            
+            @Override
+            public String getDescription() {
+                return "Arquivos Java (*.java) e Diretórios";
+            }
+        });
+        
+        int result = fileChooser.showOpenDialog(this);
 
-// Opcional: define o modo de seleção (apenas arquivos, diretórios ou ambos)
-// fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY); // Apenas arquivos
-// fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); // Apenas diretórios
-// fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES); // Ambos (padrão)
-
-int result = fileChooser.showOpenDialog(null); // Use o seu componente pai em vez de null, ex: this
-
-if (result == JFileChooser.APPROVE_OPTION) {
-    File selectedFile = fileChooser.getSelectedFile();
-
-    // --- PARTE EXISTENTE: LER O ARQUIVO E EXIBIR NO CaixaTexto ---
-    try (BufferedReader reader = new BufferedReader(new FileReader(selectedFile))) {
-        CaixaTexto.setText(""); // Limpa a área de texto antes
-        String line;
-        while ((line = reader.readLine()) != null) {
-            CaixaTexto.append(line + "\n"); // Adiciona linha por linha
-        }
-    } catch (IOException ex) {
-        JOptionPane.showMessageDialog(null, "Erro ao ler o arquivo: " + ex.getMessage());
-    }
-    // -----------------------------------------------------------
-
-
-    // --- NOVA PARTE: ADICIONAR A ESTRUTURA DO ARQUIVO/DIRETÓRIO NA JTree ---
-
-    DefaultMutableTreeNode rootNode;
-    File rootFile;
-    File parentDir = selectedFile.getParentFile();
-
-    // Decide qual será o nó raiz da árvore: o diretório pai ou o próprio arquivo
-    if (parentDir != null) {
-        rootFile = parentDir; // O diretório pai será a raiz
-        // Cria o nó raiz usando o objeto File (o DefaultTreeCellRenderer exibirá o nome)
-        rootNode = new DefaultMutableTreeNode(rootFile);
-
-        // Adiciona os filhos (arquivos e diretórios) do diretório pai
-        File[] children = parentDir.listFiles();
-        if (children != null) {
-            for (File child : children) {
-                // Cria um nó para cada arquivo/diretório dentro do pai
-                DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(child);
-                rootNode.add(childNode);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            
+            if (selectedFile.isFile() && !selectedFile.getName().toLowerCase().endsWith(".java")) {
+                JOptionPane.showMessageDialog(this,
+                    "Por favor, selecione um arquivo .java ou uma pasta de projeto.",
+                    "Tipo de Arquivo Inválido",
+                    JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            // Criar o nó raiz
+            DefaultMutableTreeNode rootNode;
+            
+            if (selectedFile.isDirectory()) {
+                // Se for um diretório, criar árvore completa
+                rootNode = new DefaultMutableTreeNode(selectedFile);
+                addFilesToTree(selectedFile, rootNode);
+            } else {
+                // Se for um arquivo .java
+                // Mostrar aviso sobre abrir pasta
+                int response = JOptionPane.showConfirmDialog(this,
+                    "Você está abrindo um arquivo individual.\n" +
+                    "Para trabalhar com um projeto completo, é recomendado abrir a pasta do projeto.\n\n" +
+                    "Deseja continuar mesmo assim?",
+                    "Abrir Arquivo Individual",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE);
+                
+                if (response != JOptionPane.YES_OPTION) {
+                    return;
+                }
+                
+                // Criar árvore apenas com o arquivo
+                rootNode = new DefaultMutableTreeNode(selectedFile);
+            }
+            
+            // Criar e definir o modelo da árvore
+            DefaultTreeModel treeModel = new DefaultTreeModel(rootNode);
+            jTreeArquivos.setModel(treeModel);
+            
+            // Expandir o nó raiz
+            jTreeArquivos.expandPath(new TreePath(rootNode.getPath()));
+            
+            // Se for um arquivo, carregar seu conteúdo no editor
+            if (selectedFile.isFile()) {
+                try (BufferedReader reader = new BufferedReader(new FileReader(selectedFile))) {
+                    CaixaTexto.setText("");
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        CaixaTexto.append(line + "\n");
+                    }
+                    CaixaTexto.setCaretPosition(0);
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(this,
+                        "Erro ao ler o arquivo: " + ex.getMessage(),
+                        "Erro de Leitura",
+                        JOptionPane.ERROR_MESSAGE);
+                }
             }
         }
-    } else {
-        // Se não há diretório pai (ex: selecionou a raiz de uma unidade),
-        // o próprio arquivo selecionado será o nó raiz
-        rootFile = selectedFile;
-        rootNode = new DefaultMutableTreeNode(rootFile);
-        // Neste caso, não adicionamos filhos porque a árvore é apenas o arquivo raiz
-    }
-
-    // Cria o modelo da árvore com o nó raiz
-    DefaultTreeModel treeModel = new DefaultTreeModel(rootNode);
-
-    // Define o modelo na sua JTree (usando o nome correto agora)
-    jTreeArquivos.setModel(treeModel);
-
-    // Opcional: Encontrar e selecionar o nó correspondente ao arquivo escolhido
-    // Isso torna o arquivo selecionado visível e destacado na árvore.
-    DefaultMutableTreeNode nodeToSelect = findNode(rootNode, selectedFile);
-    if (nodeToSelect != null) {
-        // Cria o caminho para o nó encontrado
-        TreePath path = new TreePath(nodeToSelect.getPath());
-        // Define o caminho selecionado na árvore
-        jTreeArquivos.setSelectionPath(path);
-
-        // Opcional: Expande o nó pai para garantir que o arquivo selecionado seja visível
-        if (path.getParentPath() != null) {
-             jTreeArquivos.expandPath(path.getParentPath());
-        } else {
-             // Se o arquivo selecionado é a raiz, apenas expande a raiz (se necessário)
-             jTreeArquivos.expandPath(path);
+    }                                        
+    
+    private void addFilesToTree(File directory, DefaultMutableTreeNode parentNode) {
+        File[] files = directory.listFiles();
+        if (files != null) {
+            // Ordenar arquivos: diretórios primeiro, depois arquivos
+            Arrays.sort(files, (f1, f2) -> {
+                if (f1.isDirectory() && !f2.isDirectory()) return -1;
+                if (!f1.isDirectory() && f2.isDirectory()) return 1;
+                return f1.getName().compareToIgnoreCase(f2.getName());
+            });
+            
+            for (File file : files) {
+                // Ignorar arquivos que não são .java
+                if (file.isFile() && !file.getName().toLowerCase().endsWith(".java")) {
+                    continue;
+                }
+                
+                DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(file);
+                parentNode.add(childNode);
+                
+                // Se for um diretório, adicionar seus arquivos recursivamente
+                if (file.isDirectory()) {
+                    addFilesToTree(file, childNode);
+                }
+            }
         }
-    }
-    // -------------------------------------------------------------------------
-}
-    }//GEN-LAST:event_jButton7ActionPerformed
 
+    }//GEN-LAST:event_jButton7ActionPerformed
+        
     private void btnAjudaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAjudaActionPerformed
             Ajuda telaAjuda = new Ajuda(); 
             telaAjuda.setVisible(true); 
     }//GEN-LAST:event_btnAjudaActionPerformed
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
-        jPanelTerminal.setVisible(true);
+       jPanelTerminal.setVisible(true);
         jTextArea1.setText("");
 
         java.time.LocalDateTime agora = java.time.LocalDateTime.now();
@@ -656,9 +769,30 @@ if (result == JFileChooser.APPROVE_OPTION) {
         System.setErr(printStream);
 
         try {
-            // Criar e executar o compilador do projeto
-            ProjectCompiler compiler = new ProjectCompiler(jTreeArquivos, jTextArea1);
-            compiler.executarProjeto();
+            // Verificar se há arquivos na JTree
+            DefaultMutableTreeNode root = (DefaultMutableTreeNode) jTreeArquivos.getModel().getRoot();
+            boolean hasFiles = false;
+            
+            // Verifica se o nó raiz tem filhos e se algum deles é um arquivo
+            if (root != null) {
+                for (int i = 0; i < root.getChildCount(); i++) {
+                    DefaultMutableTreeNode child = (DefaultMutableTreeNode) root.getChildAt(i);
+                    if (child.getUserObject() instanceof File) {
+                        hasFiles = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (!hasFiles) {
+                // Se não há arquivos, compilar diretamente do CaixaTexto
+                ProjectCompiler compiler = new ProjectCompiler(jTextArea1, CaixaTexto.getText());
+                compiler.executarProjeto();
+            } else {
+                // Se há arquivos, compilar normalmente
+                ProjectCompiler compiler = new ProjectCompiler(jTreeArquivos, jTextArea1);
+                compiler.executarProjeto();
+            }
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Erro ao executar o projeto: " + e.getMessage());
@@ -682,20 +816,21 @@ if (result == JFileChooser.APPROVE_OPTION) {
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
         JFileChooser fileChooser = new JFileChooser();
-                int result = fileChooser.showOpenDialog(null);
-                
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    File selectedFile = fileChooser.getSelectedFile();
-                try (BufferedReader reader = new BufferedReader(new FileReader(selectedFile))) {
-                    CaixaTexto.setText(""); // Limpa a área de texto antes
-                    String line;
-                    while ((line = reader.readLine()) != null) {
+        int result = fileChooser.showOpenDialog(null);
+        
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            arquivoAtual = selectedFile; // Atualiza o arquivo atual
+            try (BufferedReader reader = new BufferedReader(new FileReader(selectedFile))) {
+                CaixaTexto.setText(""); // Limpa a área de texto antes
+                String line;
+                while ((line = reader.readLine()) != null) {
                     CaixaTexto.append(line + "\n"); // Adiciona linha por linha
-                    }
-    } catch (IOException ex) {
-        JOptionPane.showMessageDialog(null, "Erro ao ler o arquivo: " + ex.getMessage());
-    }
-}              // TODO add your handling code here:
+                }
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(null, "Erro ao ler o arquivo: " + ex.getMessage());
+            }
+        }         // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed

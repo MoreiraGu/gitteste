@@ -14,6 +14,7 @@ public class ProjectCompiler {
     private final JTree jTreeArquivos;
     private final JTextArea outputArea;
     private final File outputDir;
+    private String singleFileContent;
     
     public ProjectCompiler(JTree jTreeArquivos, JTextArea outputArea) {
         this.jTreeArquivos = jTreeArquivos;
@@ -24,22 +25,46 @@ public class ProjectCompiler {
         }
     }
     
+    public ProjectCompiler(JTextArea outputArea, String fileContent) {
+        this.jTreeArquivos = null;
+        this.outputArea = outputArea;
+        this.outputDir = new File("bin");
+        this.singleFileContent = fileContent;
+        if (!outputDir.exists()) {
+            outputDir.mkdir();
+        }
+    }
+    
     public void executarProjeto() {
         try {
-            // 1. Coletar todos os arquivos .java da JTree
-            List<File> javaFiles = collectJavaFiles();
-            if (javaFiles.isEmpty()) {
-                outputArea.append("Nenhum arquivo .java encontrado no projeto.\n");
-                return;
+            List<File> javaFiles;
+            
+            // Se não há JTree ou está vazia, compila o conteúdo do CaixaTexto
+            if (jTreeArquivos == null || jTreeArquivos.getModel().getRoot() == null) {
+                if (singleFileContent == null || singleFileContent.trim().isEmpty()) {
+                    outputArea.append("Nenhum código para compilar.\n");
+                    return;
+                }
+                
+                // Criar arquivo temporário com o conteúdo do CaixaTexto
+                File tempFile = createTempJavaFile();
+                javaFiles = Collections.singletonList(tempFile);
+                outputArea.append("Compilando código do editor...\n");
+            } else {
+                // Compilar arquivos da JTree
+                javaFiles = collectJavaFiles();
+                if (javaFiles.isEmpty()) {
+                    outputArea.append("Nenhum arquivo .java encontrado no projeto.\n");
+                    return;
+                }
+                
+                outputArea.append("Arquivos .java encontrados:\n");
+                for (File file : javaFiles) {
+                    outputArea.append("- " + file.getAbsolutePath() + "\n");
+                }
             }
             
-            // Mostrar arquivos encontrados
-            outputArea.append("Arquivos .java encontrados:\n");
-            for (File file : javaFiles) {
-                outputArea.append("- " + file.getAbsolutePath() + "\n");
-            }
-            
-            // 2. Compilar os arquivos
+            // Compilar os arquivos
             boolean compilationSuccess = compileFiles(javaFiles);
             if (!compilationSuccess) {
                 outputArea.append("Compilação falhou. Verifique os erros acima.\n");
@@ -50,7 +75,7 @@ public class ProjectCompiler {
             outputArea.append("\nArquivos compilados em " + outputDir.getAbsolutePath() + ":\n");
             listCompiledFiles(outputDir, "");
             
-            // 3. Encontrar e executar a classe principal
+            // Encontrar e executar a classe principal
             String mainClassName = findMainClass(javaFiles);
             if (mainClassName == null) {
                 outputArea.append("Nenhuma classe principal encontrada. Certifique-se de que existe uma classe com método main.\n");
@@ -63,6 +88,51 @@ public class ProjectCompiler {
             outputArea.append("Erro durante a execução do projeto: " + e.getMessage() + "\n");
             e.printStackTrace(new PrintStream(new TextAreaOutputStream(outputArea)));
         }
+    }
+    
+    private File createTempJavaFile() throws IOException {
+        // Criar diretório temporário se não existir
+        File tempDir = new File("temp");
+        if (!tempDir.exists()) {
+            tempDir.mkdir();
+        }
+        
+        // Extrair nome da classe do código fonte
+        String className = extractClassName(singleFileContent);
+        if (className == null) {
+            throw new IOException("Não foi possível encontrar uma classe pública no código fonte");
+        }
+        
+        // Criar arquivo temporário com o nome da classe
+        File tempFile = new File(tempDir, className + ".java");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
+            writer.write(singleFileContent);
+        }
+        
+        return tempFile;
+    }
+    
+    private String extractClassName(String sourceCode) {
+        // Procura por uma declaração de classe pública
+        int classIndex = sourceCode.indexOf("public class ");
+        if (classIndex == -1) {
+            return null;
+        }
+        
+        // Encontra o início do nome da classe
+        int nameStart = classIndex + "public class ".length();
+        
+        // Encontra o fim do nome da classe (espaço, chave ou parêntese)
+        int nameEnd = sourceCode.length();
+        for (int i = nameStart; i < sourceCode.length(); i++) {
+            char c = sourceCode.charAt(i);
+            if (c == ' ' || c == '{' || c == '(') {
+                nameEnd = i;
+                break;
+            }
+        }
+        
+        return sourceCode.substring(nameStart, nameEnd).trim();
     }
     
     private String findMainClass(List<File> javaFiles) {
