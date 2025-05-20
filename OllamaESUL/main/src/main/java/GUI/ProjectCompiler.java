@@ -41,7 +41,14 @@ public class ProjectCompiler {
             // Se não há JTree ou está vazia, compila o conteúdo do CaixaTexto
             if (jTreeArquivos == null || jTreeArquivos.getModel().getRoot() == null) {
                 if (singleFileContent == null || singleFileContent.trim().isEmpty()) {
-                    outputArea.append("Nenhum código para compilar.\n");
+                    outputArea.append("Código vazio. Nada para compilar.\n");
+                    return;
+                }
+
+                // Verifica se existe uma classe pública antes de prosseguir
+                String className = extractClassName(singleFileContent);
+                if (className == null) {
+                    outputArea.append("Não foi possível encontrar uma classe pública no código fonte.\n");
                     return;
                 }
 
