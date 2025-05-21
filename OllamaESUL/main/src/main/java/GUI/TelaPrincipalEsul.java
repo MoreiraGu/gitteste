@@ -180,6 +180,7 @@ private void addFileTab(File file, RSyntaxTextArea textArea) {
     closeButton.setBorderPainted(false); // Sem borda
     closeButton.setFocusPainted(false); // Sem borda de foco
     closeButton.setForeground(Color.RED); // Colore o 'x' de vermelho
+    
 
     tabTitlePanel.add(titleLabel);
     tabTitlePanel.add(closeButton);
@@ -272,6 +273,7 @@ private File getSelectedFile() {
         btnAjuda = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTreeArquivos = new javax.swing.JTree();
+        jButton11 = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem3 = new javax.swing.JMenuItem();
@@ -347,7 +349,7 @@ private File getSelectedFile() {
         jButton7.setFont(new java.awt.Font("Inria Sans", 1, 12)); // NOI18N
         jButton7.setForeground(new java.awt.Color(255, 211, 94));
         jButton7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagens/IconArquivo.png"))); // NOI18N
-        jButton7.setText("Abrir Aquivo");
+        jButton7.setText("Abrir Arquivo");
         jButton7.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton7ActionPerformed(evt);
@@ -418,7 +420,7 @@ private File getSelectedFile() {
                     .addComponent(jScrollPane1)
                     .addGroup(jPanelTerminalLayout.createSequentialGroup()
                         .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 895, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 1379, Short.MAX_VALUE)
                         .addComponent(jButton10)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton9)))
@@ -456,6 +458,18 @@ private File getSelectedFile() {
         jTreeArquivos.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
         jScrollPane2.setViewportView(jTreeArquivos);
 
+        jButton11.setBackground(new java.awt.Color(22, 28, 34));
+        jButton11.setFont(new java.awt.Font("Inria Sans", 1, 12)); // NOI18N
+        jButton11.setForeground(new java.awt.Color(255, 211, 94));
+        jButton11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagens/IconArquivo.png"))); // NOI18N
+        jButton11.setText("Novo Arquivo");
+        jButton11.setActionCommand("Abrir Arquivo");
+        jButton11.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton11ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -471,7 +485,9 @@ private File getSelectedFile() {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
                                 .addComponent(jButton7)
-                                .addGap(62, 62, 62)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButton11)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jButton3)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jButton4)
@@ -503,7 +519,7 @@ private File getSelectedFile() {
                         .addComponent(jLabel1)
                         .addGap(18, 18, 18)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 421, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 64, Short.MAX_VALUE))
+                        .addGap(0, 343, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -513,7 +529,8 @@ private File getSelectedFile() {
                                 .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(btnAjuda, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(btnAjuda, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jButton11, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                     .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -575,7 +592,7 @@ private File getSelectedFile() {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 1427, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 1427, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -899,6 +916,14 @@ JFileChooser fileChooser = new JFileChooser();
         }
     }  // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem4ActionPerformed
+
+    private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
+       // Adicione uma aba inicial vazia ou de "Boas-vindas"
+        RSyntaxTextArea initialTextArea2 = createNewRSyntaxTextArea();
+        initialTextArea2.setText("\n\n                             // Seu código aqui //\n                              ");
+        // Usamos um objeto File dummy para a aba inicial, pois ela não representa um arquivo salvo.
+        addFileTab(new File("Novo.java"), initialTextArea2);
+    }//GEN-LAST:event_jButton11ActionPerformed
     
     
     /**
@@ -941,6 +966,7 @@ JFileChooser fileChooser = new JFileChooser();
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAjuda;
     private javax.swing.JButton jButton10;
+    private javax.swing.JButton jButton11;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
