@@ -23,6 +23,9 @@ public class Main {
 //        UIManager.put("sFont", new Font("Segoe UI", Font.PLAIN, 13));
 //
 //        // Cor das linhas
+        UIManager.put("TabbedPane.selectedBackground", new Color(40, 45, 50));
+        UIManager.put("TabbedPane.selectedForeground", Color.WHITE);
+        UIManager.put("TabbedPane.tabHeight", 30);
         UIManager.put("Table.showHorizontalLines", true);
         UIManager.put("Table.showVerticalLines", false);
         UIManager.put("Table.gridColor", new Color(224, 224, 224)); // Linhas sutis

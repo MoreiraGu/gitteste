@@ -6,9 +6,7 @@ package GUI;
 
 import esulDAO.BD;
 import ferramentas.GeradorDeTesteJava;
-import GUI.ProjectCompiler;
 import ferramentas.MelhoradorDeCodigo;
-import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -17,31 +15,37 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JFrame;
-import org.codehaus.janino.SimpleCompiler;
 import java.awt.Color;
+import java.awt.FlowLayout;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
+import java.util.Arrays; 
+import javax.swing.AbstractAction; 
+import javax.swing.ActionMap;      
+import javax.swing.InputMap;      
+import javax.swing.KeyStroke;      
+import java.awt.event.ActionEvent; 
+import javax.swing.JComponent;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
-import javax.swing.InputMap;
-import javax.swing.ActionMap;
-import javax.swing.KeyStroke;
-import javax.swing.AbstractAction;
-import java.awt.event.ActionEvent;
-import java.util.Arrays;
 
 /**
  *
@@ -49,176 +53,195 @@ import java.util.Arrays;
  */
 public class TelaPrincipalEsul extends javax.swing.JFrame {
     
-    private RSyntaxTextArea CaixaTexto;  
-    private final javax.swing.JPanel painelCodigo; 
-    private DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("Projetos"); // Nó raiz para múltiplos projetos
-    private DefaultTreeModel treeModel = new DefaultTreeModel(rootNode);
-    private File arquivoAtual;
-
+    private Map<File, RSyntaxTextArea> openFilesMap; // Para rastrear arquivos abertos e suas áreas de texto
+    // O painelCodigo já é o jPanel3 (JTabbedPane agora)
+    private final javax.swing.JTabbedPane painelCodigo;
 
     public TelaPrincipalEsul() {
         getRootPane().putClientProperty("JRootPane.titleBarBackground", new Color(16,22,20));
         getRootPane().putClientProperty("JRootPane.titleBarForeground", Color.WHITE);
         
         initComponents();
-        jTreeArquivos.setModel(treeModel); 
         setIconImage(new ImageIcon(getClass().getResource("/Imagens/esul.png")).getImage());
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         jPanelTerminal.setVisible(false);
         painelCodigo = jPanel3;
         setLocationRelativeTo(null);
+        openFilesMap = new HashMap<>();
         configurarCaixaTexto();
         jTreeArquivos.setCellRenderer(new FileTreeCellRenderer());
-        jTreeArquivos.addTreeSelectionListener(new TreeSelectionListener() {
-            @Override
-            public void valueChanged(TreeSelectionEvent e) {
-                DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) jTreeArquivos.getLastSelectedPathComponent();
+jTreeArquivos.addTreeSelectionListener(new TreeSelectionListener() {
+    @Override
+    public void valueChanged(TreeSelectionEvent e) {
+        DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) jTreeArquivos.getLastSelectedPathComponent();
 
-                if (selectedNode == null) {
-                    CaixaTexto.setText("");
-                    arquivoAtual = null;
-                    return;
-                }
+        if (selectedNode == null) {
+            return;
+        }
 
-                Object userObject = selectedNode.getUserObject();
+        Object userObject = selectedNode.getUserObject();
 
-                if (userObject instanceof File) {
-                    File file = (File) userObject;
+        if (userObject instanceof File) {
+            File file = (File) userObject;
 
-                    if (file.isFile()) {
-                        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                            CaixaTexto.setText("");
-                            String line;
-                            while ((line = reader.readLine()) != null) {
-                                CaixaTexto.append(line + "\n");
-                            }
-                            CaixaTexto.setCaretPosition(0); // Volta para o topo
-                            arquivoAtual = file; // Atualiza o arquivo atual
-                        } catch (IOException ex) {
-                            JOptionPane.showMessageDialog(TelaPrincipalEsul.this,
-                                    "Erro ao ler o arquivo: " + ex.getMessage(),
-                                    "Erro de Leitura de Arquivo", JOptionPane.ERROR_MESSAGE);
-                            CaixaTexto.setText("Erro ao carregar o arquivo: " + ex.getMessage());
-                            arquivoAtual = null;
+            if (file.isFile()) {
+                if (openFilesMap.containsKey(file)) {
+                    RSyntaxTextArea existingTextArea = openFilesMap.get(file);
+                    for (int i = 0; i < jPanel3.getTabCount(); i++) { // Use jPanel3 diretamente
+                        JPanel tabContentPanel = (JPanel) jPanel3.getComponentAt(i);
+                        RTextScrollPane scrollPane = (RTextScrollPane) tabContentPanel.getComponent(0);
+                        if (scrollPane.getViewport().getView() == existingTextArea) {
+                            jPanel3.setSelectedIndex(i); // Use jPanel3 diretamente
+                            break;
                         }
-                    } else {
-                        CaixaTexto.setText(""); // Limpa se for diretório
-                        arquivoAtual = null;
                     }
                 } else {
-                    CaixaTexto.setText(""); // Limpa se não for File
-                    arquivoAtual = null;
+                    try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                        RSyntaxTextArea newTextArea = createNewRSyntaxTextArea();
+                        newTextArea.setText("");
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            newTextArea.append(line + "\n");
+                        }
+                        newTextArea.setCaretPosition(0);
+
+                        addFileTab(file, newTextArea);
+
+                    } catch (IOException ex) {
+                        JOptionPane.showMessageDialog(TelaPrincipalEsul.this,
+                                "Erro ao ler o arquivo: " + ex.getMessage(),
+                                "Erro de Leitura de Arquivo", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }
-        });
-    }    
-       
-    private void configurarCaixaTexto() {
-        CaixaTexto = new RSyntaxTextArea();
-        CaixaTexto.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
-        CaixaTexto.setCodeFoldingEnabled(true);
-        CaixaTexto.setAntiAliasingEnabled(true);
-        CaixaTexto.setFont(new java.awt.Font("Consolas", java.awt.Font.PLAIN, 18));
-        CaixaTexto.setBackground(new java.awt.Color(255, 255, 255));
-        CaixaTexto.setForeground(new java.awt.Color(0, 0, 0));
-        try {
-            InputStream in = getClass().getResourceAsStream("/org/fife/ui/rsyntaxtextarea/themes/default.xml");
-            if (in == null) {
-                System.err.println("Arquivo de tema não encontrado!");
-            } else {
-                Theme theme = Theme.load(in);
-                theme.apply(CaixaTexto);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+    }
+});
         
-        String textoInicial = """
-                             // Seu código aqui //
-                             """;
-        CaixaTexto.setText(textoInicial);
+        // Configurar atalhos de teclado para a janela principal
+        InputMap inputMap = getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap actionMap = getRootPane().getActionMap();
 
-        // Configurar atalhos de teclado
-        InputMap inputMap = CaixaTexto.getInputMap();
-        ActionMap actionMap = CaixaTexto.getActionMap();
-        
-        // Ctrl+S para salvar no arquivo atual
+        // Ctrl+S para salvar
         KeyStroke ctrlS = KeyStroke.getKeyStroke("control S");
         inputMap.put(ctrlS, "saveFile");
         actionMap.put("saveFile", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (arquivoAtual != null) {
-                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(arquivoAtual))) {
-                        writer.write(CaixaTexto.getText());
-                        JOptionPane.showMessageDialog(TelaPrincipalEsul.this, 
-                            "Arquivo salvo com sucesso!", 
-                            "Sucesso", 
-                            JOptionPane.INFORMATION_MESSAGE);
-                    } catch (IOException ex) {
-                        JOptionPane.showMessageDialog(TelaPrincipalEsul.this,
-                            "Erro ao salvar o arquivo: " + ex.getMessage(),
-                            "Erro",
-                            JOptionPane.ERROR_MESSAGE);
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(TelaPrincipalEsul.this,
-                        "Nenhum arquivo aberto para salvar. Use Ctrl+Shift+S para salvar em um novo arquivo.",
-                        "Aviso",
-                        JOptionPane.WARNING_MESSAGE);
-                }
+                jMenuItem4ActionPerformed(null);
             }
         });
-        
+
         // Ctrl+Shift+S para salvar como
         KeyStroke ctrlShiftS = KeyStroke.getKeyStroke("control shift S");
         inputMap.put(ctrlShiftS, "saveAs");
         actionMap.put("saveAs", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JFileChooser fileChooser = new JFileChooser();
-                fileChooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
-                    @Override
-                    public boolean accept(File f) {
-                        return f.isDirectory() || f.getName().toLowerCase().endsWith(".java");
-                    }
-                    
-                    @Override
-                    public String getDescription() {
-                        return "Arquivos Java (*.java)";
-                    }
-                });
-                
-                int result = fileChooser.showSaveDialog(TelaPrincipalEsul.this);
-                
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    File selectedFile = fileChooser.getSelectedFile();
-                    // Garantir que o arquivo tenha extensão .java
-                    if (!selectedFile.getName().toLowerCase().endsWith(".java")) {
-                        selectedFile = new File(selectedFile.getAbsolutePath() + ".java");
-                    }
-                    
-                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(selectedFile))) {
-                        writer.write(CaixaTexto.getText());
-                        arquivoAtual = selectedFile; // Atualiza o arquivo atual
-                        JOptionPane.showMessageDialog(TelaPrincipalEsul.this,
-                            "Arquivo salvo com sucesso!",
-                            "Sucesso",
-                            JOptionPane.INFORMATION_MESSAGE);
-                    } catch (IOException ex) {
-                        JOptionPane.showMessageDialog(TelaPrincipalEsul.this,
-                            "Erro ao salvar o arquivo: " + ex.getMessage(),
-                            "Erro",
-                            JOptionPane.ERROR_MESSAGE);
-                    }
-                }
+                jMenuItem4ActionPerformed(null);
             }
         });
-
-        RTextScrollPane scrollPane = new RTextScrollPane(CaixaTexto);
-        painelCodigo.setLayout(new java.awt.BorderLayout());
-        painelCodigo.add(scrollPane, java.awt.BorderLayout.CENTER);
     }
+
+    private RSyntaxTextArea createNewRSyntaxTextArea() {
+        RSyntaxTextArea textArea = new RSyntaxTextArea();
+        textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
+        textArea.setCodeFoldingEnabled(true);
+        textArea.setAntiAliasingEnabled(true);
+        textArea.setFont(new java.awt.Font("Consolas", java.awt.Font.PLAIN, 18));
+        textArea.setBackground(new java.awt.Color(255, 255, 255));
+        textArea.setForeground(new java.awt.Color(0, 0, 0));
+        try {
+            InputStream in = getClass().getResourceAsStream("/org/fife/ui/rsyntaxtextarea/themes/default.xml");
+            if (in == null) {
+                System.err.println("Arquivo de tema não encontrado!");
+            } else {
+                Theme theme = Theme.load(in);
+                theme.apply(textArea);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return textArea;
+    }
+
+private void addFileTab(File file, RSyntaxTextArea textArea) {
+    RTextScrollPane scrollPane = new RTextScrollPane(textArea);
+    
+    // Crie um painel para o título da aba e o botão de fechar
+    JPanel tabTitlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+    tabTitlePanel.setOpaque(false); // Torna-o transparente
+    JLabel titleLabel = new JLabel(file.getName());
+    JButton closeButton = new JButton("x"); // Um pequeno 'x' para fechar
+    closeButton.setFont(closeButton.getFont().deriveFont(10f)); // Torna a fonte menor
+    closeButton.setMargin(new java.awt.Insets(0, 0, 0, 0)); // Remove a margem
+    closeButton.setContentAreaFilled(false); // Torna a área de conteúdo transparente
+    closeButton.setBorderPainted(false); // Sem borda
+    closeButton.setFocusPainted(false); // Sem borda de foco
+    closeButton.setForeground(Color.RED); // Colore o 'x' de vermelho
+
+    tabTitlePanel.add(titleLabel);
+    tabTitlePanel.add(closeButton);
+
+    // Adicione o scrollPane a um novo painel para conter o conteúdo da aba
+    JPanel tabContentPanel = new JPanel(new java.awt.BorderLayout());
+    tabContentPanel.add(scrollPane, java.awt.BorderLayout.CENTER);
+    
+    // Adicione a aba ao JTabbedPane (que agora é jPanel3)
+    jPanel3.addTab(null, tabContentPanel); // Adiciona com título nulo para usar componente de aba personalizado
+    int newTabIndex = jPanel3.indexOfComponent(tabContentPanel);
+    jPanel3.setTabComponentAt(newTabIndex, tabTitlePanel); // Define o componente de aba personalizado
+
+    jPanel3.setSelectedIndex(newTabIndex); // Seleciona a aba recém-criada
+    openFilesMap.put(file, textArea); // Adiciona ao mapa
+
+    // Adiciona um listener de ação para o botão de fechar
+    closeButton.addActionListener(e -> {
+        int index = jPanel3.indexOfComponent(tabContentPanel);
+        if (index != -1) {
+            jPanel3.removeTabAt(index);
+            openFilesMap.remove(file); // Remove do mapa quando a aba é fechada
+        }
+    });
+}
+       
+private void configurarCaixaTexto() {
+    // painelCodigo já é jPanel3, que já é um JTabbedPane
+    // Então, as configurações de layout para painelCodigo não são mais necessárias aqui,
+    // pois o JTabbedPane já gerencia suas abas.
+    
+    // Configurações visuais do JTabbedPane (jPanel3)
+    jPanel3.setBackground(new java.awt.Color(42, 45, 44)); // Exemplo de cor de fundo para as abas
+    jPanel3.setForeground(new java.awt.Color(255, 211, 94)); // Exemplo de cor de primeiro plano para as abas
+
+    // Adicione uma aba inicial vazia ou de "Boas-vindas"
+    RSyntaxTextArea initialTextArea = createNewRSyntaxTextArea();
+    initialTextArea.setText("\n\n                             // Seu código aqui //\n                              ");
+    // Usamos um objeto File dummy para a aba inicial, pois ela não representa um arquivo salvo.
+    addFileTab(new File("Novo Arquivo.java"), initialTextArea); 
+}
+private RSyntaxTextArea getSelectedTextArea() {
+    int selectedIndex = jPanel3.getSelectedIndex();
+    if (selectedIndex == -1) {
+        return null; // Nenhuma aba selecionada
+    }
+    JPanel tabContentPanel = (JPanel) jPanel3.getComponentAt(selectedIndex);
+    RTextScrollPane scrollPane = (RTextScrollPane) tabContentPanel.getComponent(0); // Assume que o RTextScrollPane é o primeiro componente
+    return (RSyntaxTextArea) scrollPane.getViewport().getView();
+}
+private File getSelectedFile() {
+    RSyntaxTextArea currentTextArea = getSelectedTextArea();
+    if (currentTextArea == null) {
+        return null;
+    }
+    for (Map.Entry<File, RSyntaxTextArea> entry : openFilesMap.entrySet()) {
+        if (entry.getValue() == currentTextArea) {
+            return entry.getKey();
+        }
+    }
+    return null; // Retorna null se não encontrar o arquivo associado (ex: aba "Novo Arquivo")
+}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -233,10 +256,9 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
         jButton2 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
+        jPanel3 = new javax.swing.JTabbedPane();
         jLabel4 = new javax.swing.JLabel();
         jButton6 = new javax.swing.JButton();
-        jPanel3 = new javax.swing.JPanel();
-        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         jButton7 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jButton8 = new javax.swing.JButton();
@@ -304,6 +326,8 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
             }
         });
 
+        jPanel3.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(204, 204, 204), 1, true));
+
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(255, 211, 94));
         jLabel4.setText("Históricos:");
@@ -318,19 +342,6 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
                 jButton6ActionPerformed(evt);
             }
         });
-
-        jPanel3.setPreferredSize(new java.awt.Dimension(50, 446));
-
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 477, Short.MAX_VALUE)
-        );
 
         jButton7.setBackground(new java.awt.Color(22, 28, 34));
         jButton7.setFont(new java.awt.Font("Inria Sans", 1, 12)); // NOI18N
@@ -407,7 +418,7 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
                     .addComponent(jScrollPane1)
                     .addGroup(jPanelTerminalLayout.createSequentialGroup()
                         .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 895, Short.MAX_VALUE)
                         .addComponent(jButton10)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton9)))
@@ -455,41 +466,45 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 1167, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(jButton7)
-                        .addGap(62, 62, 62)
-                        .addComponent(jButton3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton4)
-                        .addGap(46, 46, 46)
-                        .addComponent(jButton8)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel4)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jButton6)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                .addComponent(jButton7)
+                                .addGap(62, 62, 62)
+                                .addComponent(jButton3)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButton5)
+                                .addComponent(jButton4)
+                                .addGap(46, 46, 46)
+                                .addComponent(jButton8)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnAjuda))))
-                    .addComponent(jPanelTerminal, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(50, 50, 50))
+                                .addComponent(jButton2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel4)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addComponent(jButton6)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jButton5)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(btnAjuda))))
+                            .addComponent(jPanelTerminal, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(50, 50, 50))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 1124, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
                         .addComponent(jLabel1)
                         .addGap(18, 18, 18)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 421, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 421, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 64, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -505,14 +520,12 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
                                     .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(1, 1, 1))
                             .addComponent(jButton8, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 477, Short.MAX_VALUE)))
+                        .addGap(18, 18, 18)
+                        .addComponent(jPanel3)))
                 .addGap(18, 18, 18)
                 .addComponent(jPanelTerminal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(46, 46, 46))
         );
-
-        jPanel3.getAccessibleContext().setAccessibleDescription("");
 
         jMenu1.setText("Arquivo");
 
@@ -573,58 +586,75 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-     CaixaTexto.setText("");
+    int selectedIndex = jPanel3.getSelectedIndex();
+    if (selectedIndex != -1) {
+        JPanel tabContentPanel = (JPanel) jPanel3.getComponentAt(selectedIndex);
+        RTextScrollPane scrollPane = (RTextScrollPane) tabContentPanel.getComponent(0);
+        RSyntaxTextArea currentTextArea = (RSyntaxTextArea) scrollPane.getViewport().getView();
+        currentTextArea.setText("");
+    } else {
+        JOptionPane.showMessageDialog(this, "Nenhuma aba de código está aberta para limpar.");
+    }
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        GeradorDeTesteJava g = new GeradorDeTesteJava("http://localhost:11434/", "qwen2.5-coder:3b", 0.5f);
-        TelaResposta t = new TelaResposta();
-        
-        try {
-            if (CaixaTexto.getText().equals("")){
-                JOptionPane.showMessageDialog(null, "A caixa de texto está vazia");
-            }
-            else{
-                  g.gerarTestes(CaixaTexto.getText(), t);
-                  t.setVisible(true);
-                   
-        String userInput = CaixaTexto.getText();
-        String aiResponse = t.resposta.getText();
-        String respostaLimpa = aiResponse.replaceAll("<[^>]*>", ""); // Remove tags HTML
+        RSyntaxTextArea currentTextArea = getSelectedTextArea();
+    if (currentTextArea == null) {
+        JOptionPane.showMessageDialog(this, "Nenhuma aba de código está aberta para gerar testes.");
+        return;
+    }
 
-        // Salva no banco de dados
-        BD.saveInteraction(userInput, respostaLimpa);
+    GeradorDeTesteJava g = new GeradorDeTesteJava("http://localhost:11434/", "qwen2.5-coder:3b", 0.5f);
+    TelaResposta t = new TelaResposta();
     
-            }
-          
-        } catch (Exception ex) {
-            Logger.getLogger(TelaPrincipalEsul.class.getName()).log(Level.SEVERE, null, ex);
+    try {
+        if (currentTextArea.getText().trim().isEmpty()){ // Use trim() para verificar se está vazio
+            JOptionPane.showMessageDialog(null, "A caixa de texto está vazia");
+        } else {
+            g.gerarTestes(currentTextArea.getText(), t);
+            t.setVisible(true);
+               
+            String userInput = currentTextArea.getText();
+            String aiResponse = t.resposta.getText();
+            String respostaLimpa = aiResponse.replaceAll("<[^>]*>", ""); // Remove tags HTML
+
+            // Salva no banco de dados
+            BD.saveInteraction(userInput, respostaLimpa);
         }
-        
+    } catch (Exception ex) {
+        Logger.getLogger(TelaPrincipalEsul.class.getName()).log(Level.SEVERE, null, ex);
+    }
         
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-            MelhoradorDeCodigo melhorador = new MelhoradorDeCodigo("http://localhost:11434/", "qwen2.5-coder:3b", 0.5f);
-         TelaResposta telaResposta = new TelaResposta();
+      RSyntaxTextArea currentTextArea = getSelectedTextArea();
+    if (currentTextArea == null) {
+        JOptionPane.showMessageDialog(this, "Nenhuma aba de código está aberta para gerar melhoria.");
+        return;
+    }
 
-         try {
-             if (CaixaTexto.getText().isEmpty()) {
-                 JOptionPane.showMessageDialog(null, "A caixa de texto está vazia");
-             } else {
-                 melhorador.melhorarCodigo(CaixaTexto.getText(), telaResposta);
-                 telaResposta.setVisible(true);
-                  // Captura entrada do usuário e resposta da IA
-        String userInput = CaixaTexto.getText();
-        String aiResponse = telaResposta.resposta.getText();
-        String respostaLimpa = aiResponse.replaceAll("<[^>]*>", ""); // Remove tags HTML
+    MelhoradorDeCodigo melhorador = new MelhoradorDeCodigo("http://localhost:11434/", "qwen2.5-coder:3b", 0.5f);
+    TelaResposta telaResposta = new TelaResposta();
 
-        // Salva no banco de dados
-        BD.saveInteractionI(userInput, respostaLimpa);
-             }
-         } catch (Exception ex) {
-             Logger.getLogger(TelaPrincipalEsul.class.getName()).log(Level.SEVERE, null, ex);
-         }
+    try {
+        if (currentTextArea.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "A caixa de texto está vazia");
+        } else {
+            melhorador.melhorarCodigo(currentTextArea.getText(), telaResposta);
+            telaResposta.setVisible(true);
+            
+            // Captura entrada do usuário e resposta da IA
+            String userInput = currentTextArea.getText();
+            String aiResponse = telaResposta.resposta.getText();
+            String respostaLimpa = aiResponse.replaceAll("<[^>]*>", ""); // Remove tags HTML
+
+            // Salva no banco de dados
+            BD.saveInteractionI(userInput, respostaLimpa);
+        }
+    } catch (Exception ex) {
+        Logger.getLogger(TelaPrincipalEsul.class.getName()).log(Level.SEVERE, null, ex);
+    }
 
     }//GEN-LAST:event_jButton3ActionPerformed
 
@@ -638,113 +668,115 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
           TelaHistMelhoria telaHistorico = new TelaHistMelhoria(); 
           telaHistorico.setVisible(true); 
     }//GEN-LAST:event_jButton6ActionPerformed
-    private void printTreeStructure(DefaultMutableTreeNode node, String indent) {
-    System.out.println(indent + node.getUserObject());
-    for (int i = 0; i < node.getChildCount(); i++) {
-        printTreeStructure((DefaultMutableTreeNode) node.getChildAt(i), indent + "  ");
+        private void loadDirectoryToTree(File directory, DefaultMutableTreeNode parentNode) {
+        if (!directory.isDirectory()) {
+            return;
+        }
+
+        File[] files = directory.listFiles();
+        if (files == null) {
+            return;
+        }
+
+        Arrays.sort(files); // Opcional: para manter os arquivos e diretórios em ordem alfabética
+
+        for (File file : files) {
+            // Ignorar arquivos e diretórios ocultos
+            if (file.isHidden()) {
+                continue;
+            }
+
+            DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(file);
+            parentNode.add(newNode);
+
+            if (file.isDirectory()) {
+                loadDirectoryToTree(file, newNode); // Recursão para subdiretórios
+            }
+        }
     }
-}
+    // Método auxiliar para encontrar um nó na JTree (já existente)
+
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-  JFileChooser fileChooser = new JFileChooser();
+JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); // Apenas diretórios
+        fileChooser.setDialogTitle("Selecionar Diretório do Projeto");
 
-        // Configurar para aceitar apenas diretórios
-        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        fileChooser.setDialogTitle("Abrir Projeto Java");
-        fileChooser.setApproveButtonText("Abrir Projeto");
-
-        int result = fileChooser.showOpenDialog(this);
+        int result = fileChooser.showOpenDialog(TelaPrincipalEsul.this);
 
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedDirectory = fileChooser.getSelectedFile();
 
-            // Criar um novo nó para o projeto selecionado
-            DefaultMutableTreeNode projectNode = new DefaultMutableTreeNode(selectedDirectory);
-            addFilesToTree(selectedDirectory, projectNode);
+            DefaultTreeModel treeModel = (DefaultTreeModel) jTreeArquivos.getModel();
+            DefaultMutableTreeNode rootNode;
 
-            // Adicionar o nó do projeto ao nó raiz
-            treeModel.insertNodeInto(projectNode, rootNode, rootNode.getChildCount());
-
-            // Expandir o nó do projeto
-            jTreeArquivos.expandPath(new TreePath(projectNode.getPath()));
-
-            // Imprimir a estrutura da árvore APÓS adicionar o projeto
-            printTreeStructure(rootNode, "");
-        }
-    }
-
-    private void addFilesToTree(File directory, DefaultMutableTreeNode parentNode) {
-        File[] files = directory.listFiles();
-        if (files != null) {
-            // Ordenar arquivos: diretórios primeiro, depois arquivos
-            Arrays.sort(files, (f1, f2) -> {
-                if (f1.isDirectory() && !f2.isDirectory()) return -1;
-                if (!f1.isDirectory() && f2.isDirectory()) return 1;
-                return f1.getName().compareToIgnoreCase(f2.getName());
-            });
-
-            for (File file : files) {
-                // Ignorar arquivos que não são .java
-                if (file.isFile() && !file.getName().toLowerCase().endsWith(".java")) {
-                    continue;
-                }
-
-                DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(file);
-                parentNode.add(childNode);
-
-                // Se for um diretório, adicionar seus arquivos recursivamente
-                if (file.isDirectory()) {
-                    addFilesToTree(file, childNode);
+            // Se o modelo da árvore não existir ou for o nó padrão vazio, inicialize-o
+            if (treeModel == null || jTreeArquivos.getModel().getRoot() == null || 
+                ((DefaultMutableTreeNode)jTreeArquivos.getModel().getRoot()).getUserObject().equals("root") && 
+                ((DefaultMutableTreeNode)jTreeArquivos.getModel().getRoot()).getChildCount() == 0) {
+                
+                rootNode = new DefaultMutableTreeNode("Arquivos do Projeto");
+                treeModel = new DefaultTreeModel(rootNode);
+                jTreeArquivos.setModel(treeModel);
+            } else {
+                rootNode = (DefaultMutableTreeNode) treeModel.getRoot();
+                // Se a raiz for apenas "root", e não "Arquivos do Projeto", podemos mudar
+                if (rootNode.getUserObject().equals("root") && rootNode.getChildCount() == 0) {
+                     rootNode.setUserObject("Arquivos do Projeto");
                 }
             }
+
+            // Adiciona o diretório selecionado como um novo nó raiz ou filho da raiz existente
+            DefaultMutableTreeNode projectNode = new DefaultMutableTreeNode(selectedDirectory);
+            treeModel.insertNodeInto(projectNode, rootNode, rootNode.getChildCount());
+            
+            // Carrega recursivamente os arquivos e subdiretórios no novo nó
+            loadDirectoryToTree(selectedDirectory, projectNode);
+
+            // Expande o nó do projeto e rola para torná-lo visível
+            jTreeArquivos.expandPath(new TreePath(projectNode.getPath()));
+            jTreeArquivos.scrollPathToVisible(new TreePath(projectNode.getPath()));
         }
-        
     }//GEN-LAST:event_jButton7ActionPerformed
-     
+
     private void btnAjudaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAjudaActionPerformed
             Ajuda telaAjuda = new Ajuda(); 
             telaAjuda.setVisible(true); 
     }//GEN-LAST:event_btnAjudaActionPerformed
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
-                jPanelTerminal.setVisible(true);
-                jTextArea1.setText("");
-                ProjectCompiler p = new ProjectCompiler(jTreeArquivos, jTextArea1);
-                java.time.LocalDateTime agora = java.time.LocalDateTime.now();
-                java.time.format.DateTimeFormatter formato = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-                jTextArea1.append("Terminal iniciado em: " + agora.format(formato) + "\n");
+      jPanelTerminal.setVisible(true);
+    jTextArea1.setText("");
 
-                // Configurar redirecionamento de saída
-                TextAreaOutputStream taOutputStream = new TextAreaOutputStream(jTextArea1);
-                PrintStream printStream = new PrintStream(taOutputStream, true);
-                System.setOut(printStream);
-                System.setErr(printStream);
+    java.time.LocalDateTime agora = java.time.LocalDateTime.now();
+    java.time.format.DateTimeFormatter formato = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+    jTextArea1.append("Terminal iniciado em: " + agora.format(formato) + "\n");
 
-                try {
-                    DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) jTreeArquivos.getLastSelectedPathComponent();
-                    File executionDirectory = null;
+    // Configurar redirecionamento de saída
+    TextAreaOutputStream taOutputStream = new TextAreaOutputStream(jTextArea1);
+    PrintStream printStream = new PrintStream(taOutputStream, true);
+    System.setOut(printStream);
+    System.setErr(printStream);
 
-                    if (selectedNode != null) {
-                        Object userObject = selectedNode.getUserObject();
-                        if (userObject instanceof File && ((File) userObject).isDirectory()) {
-                            executionDirectory = (File) userObject;
-                        } else if (userObject instanceof File && ((File) userObject).getName().endsWith(".java")) {
-                            executionDirectory = ((File) userObject).getParentFile();
-                        }
-                    }
+    RSyntaxTextArea currentTextArea = getSelectedTextArea();
+    if (currentTextArea == null) {
+        jTextArea1.append("Erro: Nenhuma aba de código selecionada para executar.\n");
+        return;
+    }
+    
+    File currentFile = getSelectedFile(); // Obtém o File associado à aba
+    String fileName = (currentFile != null && !currentFile.getName().equals("Novo Arquivo.java")) 
+                      ? currentFile.getName() 
+                      : "UnnamedClass.java"; 
 
-                    if (executionDirectory != null) {
-                        // Há um diretório selecionado na JTree
-                        p.executarProjeto(executionDirectory);
-                    } else {
-                        // Se nenhum diretório estiver selecionado, compile o conteúdo do editor
-                        ProjectCompiler compilerEditor = new ProjectCompiler(jTextArea1, CaixaTexto.getText());
-                        compilerEditor.executarProjeto(null); // Passa null para indicar que não há diretório selecionado
-                    }
+    try {
+        ProjectCompiler compiler = new ProjectCompiler(jTreeArquivos, jTextArea1); 
+        // PASSE O ARQUIVO ORIGINAL (currentFile) AQUI!
+        compiler.executarCodigoDoTexto(currentTextArea.getText(), fileName, currentFile); 
 
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    JOptionPane.showMessageDialog(null, "Erro ao executar o projeto: " + ex.getMessage());
-                }
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(null, "Erro ao executar o projeto: " + e.getMessage());
+    }
     }//GEN-LAST:event_jButton8ActionPerformed
 
     private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
@@ -763,38 +795,86 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
-        JFileChooser fileChooser = new JFileChooser();
-        int result = fileChooser.showOpenDialog(null);
-        
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            arquivoAtual = selectedFile; // Atualiza o arquivo atual
+JFileChooser fileChooser = new JFileChooser();
+    int result = fileChooser.showOpenDialog(null);
+    
+    if (result == JFileChooser.APPROVE_OPTION) {
+        File selectedFile = fileChooser.getSelectedFile();
+
+        if (openFilesMap.containsKey(selectedFile)) {
+            RSyntaxTextArea existingTextArea = openFilesMap.get(selectedFile);
+            for (int i = 0; i < jPanel3.getTabCount(); i++) {
+                JPanel tabContentPanel = (JPanel) jPanel3.getComponentAt(i);
+                RTextScrollPane scrollPane = (RTextScrollPane) tabContentPanel.getComponent(0);
+                if (scrollPane.getViewport().getView() == existingTextArea) {
+                    jPanel3.setSelectedIndex(i);
+                    break;
+                }
+            }
+        } else {
             try (BufferedReader reader = new BufferedReader(new FileReader(selectedFile))) {
-                CaixaTexto.setText(""); // Limpa a área de texto antes
+                RSyntaxTextArea newTextArea = createNewRSyntaxTextArea();
+                newTextArea.setText("");
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    CaixaTexto.append(line + "\n"); // Adiciona linha por linha
+                    newTextArea.append(line + "\n");
                 }
+                newTextArea.setCaretPosition(0);
+
+                addFileTab(selectedFile, newTextArea);
+
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(null, "Erro ao ler o arquivo: " + ex.getMessage());
             }
-        }         // TODO add your handling code here:
+        }
+        // Opcional: Se desejar, pode adicionar a lógica de atualização do jTreeArquivos aqui também,
+        // similar ao que foi feito em jButton7ActionPerformed.
+    }       // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
-        JFileChooser fileChooser = new JFileChooser();
-        int result = fileChooser.showSaveDialog(null); // Mostra o diálogo de salvar
+       RSyntaxTextArea currentTextArea = getSelectedTextArea();
+    if (currentTextArea == null) {
+        JOptionPane.showMessageDialog(null, "Nenhuma aba selecionada para salvar.");
+        return;
+    }
 
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
+    File currentFile = getSelectedFile(); // Tenta obter o File associado a esta aba
 
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(selectedFile))) {
-                writer.write(CaixaTexto.getText()); // Escreve o conteúdo da área de texto
-                JOptionPane.showMessageDialog(null, "Arquivo salvo com sucesso!");
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(null, "Erro ao salvar o arquivo: " + ex.getMessage());
+    JFileChooser fileChooser = new JFileChooser();
+    // Se a aba tem um arquivo associado e não é o "Novo Arquivo.java" dummy, pré-seleciona o arquivo no JFileChooser
+    if (currentFile != null && !currentFile.getName().equals("Novo Arquivo.java")) { 
+        fileChooser.setSelectedFile(currentFile); 
+    }
+    
+    int result = fileChooser.showSaveDialog(null);
+
+    if (result == JFileChooser.APPROVE_OPTION) {
+        File selectedFile = fileChooser.getSelectedFile();
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(selectedFile))) {
+            writer.write(currentTextArea.getText());
+            JOptionPane.showMessageDialog(null, "Arquivo salvo com sucesso!");
+            
+            // Atualiza o mapa se o arquivo foi salvo com um novo nome ou para um novo arquivo
+            // E atualiza o título da aba se o nome do arquivo mudou
+            if (!openFilesMap.containsKey(selectedFile) || (currentFile != null && !currentFile.equals(selectedFile))) {
+                // Remove a entrada antiga se o nome do arquivo mudou
+                if (currentFile != null) {
+                    openFilesMap.remove(currentFile);
+                }
+                openFilesMap.put(selectedFile, currentTextArea);
+                // Atualiza o título da aba
+                int selectedIndex = jPanel3.getSelectedIndex();
+                if (selectedIndex != -1) {
+                    JLabel titleLabel = (JLabel) ((JPanel)jPanel3.getTabComponentAt(selectedIndex)).getComponent(0);
+                    titleLabel.setText(selectedFile.getName());
+                }
             }
-        }        // TODO add your handling code here:
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "Erro ao salvar o arquivo: " + ex.getMessage());
+        }
+    }  // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem4ActionPerformed
     
     
@@ -859,7 +939,7 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel3;
+    private javax.swing.JTabbedPane jPanel3;
     private javax.swing.JPanel jPanelTerminal;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -867,7 +947,27 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
     private javax.swing.JTree jTreeArquivos;
     // End of variables declaration//GEN-END:variables
 
-    private DefaultMutableTreeNode findNode(DefaultMutableTreeNode rootNode, File selectedFile) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+private DefaultMutableTreeNode findNode(DefaultMutableTreeNode root, File targetFile) {
+    if (root == null || targetFile == null) {
+        return null;
     }
+
+    Object userObject = root.getUserObject();
+
+    // Verifica se o userObject é um File e se é igual ao targetFile
+    if (userObject instanceof File && ((File) userObject).equals(targetFile)) {
+        return root; // Encontrou o nó!
+    }
+
+    // Percorre os filhos do nó raiz recursivamente
+    for (int i = 0; i < root.getChildCount(); i++) {
+        DefaultMutableTreeNode child = (DefaultMutableTreeNode) root.getChildAt(i);
+        DefaultMutableTreeNode foundNode = findNode(child, targetFile);
+        if (foundNode != null) {
+            return foundNode; // Encontrou o nó em um dos sub-ramos
+        }
+    }
+
+    return null; // Não encontrou o nó neste ramo
+}
 }
