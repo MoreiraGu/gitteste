@@ -4,7 +4,11 @@
  */
 package GUI;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
+import java.awt.Insets;
 import javax.swing.table.DefaultTableModel;
 import java.sql.*;
 import javax.swing.JFrame;
@@ -15,7 +19,11 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.JScrollPane;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 /**
  *
@@ -108,28 +116,51 @@ public class TelaHistMelhoria extends javax.swing.JFrame {
                 }
             }
         });
-
+        setResizable(false);
         carregarDados();
     }
 
-    private void openDetailWindow(String content) {
-        JFrame detailFrame = new JFrame("Detalhes da Melhoria");
-        JTextArea textArea = new JTextArea(content);
-        textArea.setEditable(false);  // Impede edição
-        textArea.setWrapStyleWord(true);
-        textArea.setLineWrap(true);
-        JScrollPane scrollPane = new JScrollPane(textArea);
-        detailFrame.add(scrollPane);
+   private void openDetailWindow(String content) {
+    JFrame detailFrame = new JFrame();
 
-        // Botão de Fechar
-        JButton closeButton = new JButton("Fechar");
-        closeButton.addActionListener(evt -> detailFrame.dispose());
-        detailFrame.add(closeButton, "South");
+    // Título com margens superior e inferior
+    JLabel titleLabel = new JLabel("Detalhes da Melhoria", SwingConstants.CENTER);
+    titleLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
+    titleLabel.setForeground(new Color(255, 211, 94));
+    titleLabel.setOpaque(true);
+    titleLabel.setBackground(new Color(30, 39, 42));
 
-        detailFrame.setSize(500, 400);  // Tamanho da janela
-        detailFrame.setLocationRelativeTo(this);  // Centraliza na tela
-        detailFrame.setVisible(true);
-    }
+    JPanel titlePanel = new JPanel(new BorderLayout());
+    titlePanel.setBackground(new Color(30, 39, 42));
+    titlePanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0)); // Top e bottom = 5px
+    titlePanel.add(titleLabel, BorderLayout.CENTER);
+
+    // Área de texto
+    JTextArea textArea = new JTextArea(content);
+    textArea.setEditable(false);
+    textArea.setWrapStyleWord(true);
+    textArea.setLineWrap(true);
+    textArea.setBackground(new Color(30, 39, 42));
+    textArea.setForeground(Color.WHITE);
+    textArea.setFont(new Font("SansSerif", Font.PLAIN, 14));
+    textArea.setMargin(new Insets(10, 10, 10, 10)); // Margem interna do texto
+
+    JScrollPane scrollPane = new JScrollPane(textArea);
+    scrollPane.getViewport().setBackground(new Color(30, 39, 42));
+
+    // Painel principal com margem geral
+    JPanel mainPanel = new JPanel(new BorderLayout());
+    mainPanel.setBackground(new Color(30, 39, 42));
+    mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5)); // Margem geral de 5px
+    mainPanel.add(titlePanel, BorderLayout.NORTH);
+    mainPanel.add(scrollPane, BorderLayout.CENTER);
+
+    // Adiciona o painel ao frame
+    detailFrame.setContentPane(mainPanel);
+    detailFrame.setSize(500, 400);
+    detailFrame.setLocationRelativeTo(this);
+    detailFrame.setVisible(true);
+}
 
 
     /**
@@ -149,6 +180,9 @@ public class TelaHistMelhoria extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        tabelaHistoricoM.setAutoCreateRowSorter(true);
+        tabelaHistoricoM.setBackground(new java.awt.Color(47, 58, 65));
+        tabelaHistoricoM.setForeground(new java.awt.Color(255, 255, 255));
         tabelaHistoricoM.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -160,12 +194,17 @@ public class TelaHistMelhoria extends javax.swing.JFrame {
                 "ID", "Data e Hora", "Entrada Usuário", "Saída IA"
             }
         ));
+        tabelaHistoricoM.setFocusable(false);
+        tabelaHistoricoM.setGridColor(new java.awt.Color(47, 58, 65));
         jScrollPane1.setViewportView(tabelaHistoricoM);
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(0, 51, 51));
-        jLabel1.setText("Histórico Melhoria");
+        jLabel1.setForeground(new java.awt.Color(255, 211, 94));
+        jLabel1.setText("HISTÓRICO DE MELHORIA");
 
+        jButton1.setBackground(new java.awt.Color(255, 211, 94));
+        jButton1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jButton1.setForeground(new java.awt.Color(16, 22, 20));
         jButton1.setText("Sair");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -173,6 +212,9 @@ public class TelaHistMelhoria extends javax.swing.JFrame {
             }
         });
 
+        jButton2.setBackground(new java.awt.Color(255, 211, 94));
+        jButton2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jButton2.setForeground(new java.awt.Color(16, 22, 20));
         jButton2.setText("Atualizar");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -184,28 +226,26 @@ public class TelaHistMelhoria extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 726, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(308, 308, 308)
-                        .addComponent(jLabel1)))
-                .addContainerGap(24, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(58, 58, 58)
                 .addComponent(jButton2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButton1)
                 .addGap(78, 78, 78))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 726, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(24, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel1)
+                .addGap(267, 267, 267))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(22, 22, 22)
                 .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(34, 34, 34)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 383, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
