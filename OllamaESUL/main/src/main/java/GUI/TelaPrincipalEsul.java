@@ -141,6 +141,29 @@ jTreeArquivos.addTreeSelectionListener(new TreeSelectionListener() {
                 jMenuItem4ActionPerformed(null);
             }
         });
+
+        // Add window listener to clean up bin directory on close
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                File binDir = new File("bin");
+                if (binDir.exists() && binDir.isDirectory()) {
+                    deleteDirectoryContents(binDir);
+                }
+            }
+        });
+    }
+
+    private void deleteDirectoryContents(File directory) {
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    deleteDirectoryContents(file);
+                }
+                file.delete();
+            }
+        }
     }
 
     private RSyntaxTextArea createNewRSyntaxTextArea() {
