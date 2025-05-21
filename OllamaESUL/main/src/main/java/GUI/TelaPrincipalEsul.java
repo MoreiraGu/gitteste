@@ -628,34 +628,57 @@ private File getSelectedFile() {
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-      RSyntaxTextArea currentTextArea = getSelectedTextArea();
-    if (currentTextArea == null) {
-        JOptionPane.showMessageDialog(this, "Nenhuma aba de código está aberta para gerar melhoria.");
-        return;
-    }
+        // Obtém a área de texto atual
+        RSyntaxTextArea currentTextArea = getSelectedTextArea();
+        if (currentTextArea == null) {
+            JOptionPane.showMessageDialog(this, "Nenhuma aba de código está aberta para gerar melhoria.");
+            return;
+        }
 
-    MelhoradorDeCodigo melhorador = new MelhoradorDeCodigo("http://localhost:11434/", "qwen2.5-coder:3b", 0.5f);
-    TelaResposta telaResposta = new TelaResposta();
+        // Cria instância do melhorador e da tela de resposta
+        MelhoradorDeCodigo melhorador = new MelhoradorDeCodigo("http://localhost:11434/", "qwen2.5-coder:3b", 0.5f);
+        TelaResposta telaResposta = new TelaResposta();
 
-    try {
-        if (currentTextArea.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "A caixa de texto está vazia");
-        } else {
-            melhorador.melhorarCodigo(currentTextArea.getText(), telaResposta);
+        try {
+            // Verifica se há texto na área
+            if (currentTextArea.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(null, "A caixa de texto está vazia");
+                return;
+            }
+
+            // Obtém o texto selecionado ou todo o conteúdo
+            String textoSelecionado = currentTextArea.getSelectedText();
+            String userInput;
+
+            // Verifica se há texto selecionado
+            if (textoSelecionado != null && !textoSelecionado.trim().isEmpty()) {
+                // Melhora apenas o texto selecionado
+                melhorador.melhorarSelecao(textoSelecionado, telaResposta);
+                userInput = textoSelecionado;
+            } else {
+                // Melhora o código inteiro
+                String codigoCompleto = currentTextArea.getText();
+                melhorador.melhorarCodigo(codigoCompleto, telaResposta);
+                userInput = codigoCompleto;
+            }
+
+            // Exibe a tela de resposta
             telaResposta.setVisible(true);
             
-            // Captura entrada do usuário e resposta da IA
-            String userInput = currentTextArea.getText();
+            // Captura resposta da IA e remove tags HTML
             String aiResponse = telaResposta.resposta.getText();
-            String respostaLimpa = aiResponse.replaceAll("<[^>]*>", ""); // Remove tags HTML
+            String respostaLimpa = aiResponse.replaceAll("<[^>]*>", "");
 
-            // Salva no banco de dados
+            // Salva a interação no banco de dados
             BD.saveInteractionI(userInput, respostaLimpa);
-        }
-    } catch (Exception ex) {
-        Logger.getLogger(TelaPrincipalEsul.class.getName()).log(Level.SEVERE, null, ex);
-    }
 
+        } catch (Exception ex) {
+            Logger.getLogger(TelaPrincipalEsul.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(this, 
+                "Erro ao processar o código: " + ex.getMessage(),
+                "Erro",
+                JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed

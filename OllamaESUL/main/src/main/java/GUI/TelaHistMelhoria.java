@@ -66,13 +66,13 @@ public class TelaHistMelhoria extends javax.swing.JFrame {
 
         try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/esulbd", "root", "fatec");
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM testes")) {
+             ResultSet rs = stmt.executeQuery("SELECT * FROM melhorias")) {
 
             while (rs.next()) {
                 int id = rs.getInt("id");
                 Timestamp dataHora = rs.getTimestamp("data_hora");
-                String input = rs.getString("inp_teste");
-                String output = rs.getString("out_teste");
+                String input = rs.getString("inp_melhoria");
+                String output = rs.getString("out_melhoria");
 
                 modelo.addRow(new Object[]{id, dataHora, input, output});
             }
