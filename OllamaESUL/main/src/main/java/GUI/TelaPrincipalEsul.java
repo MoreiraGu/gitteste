@@ -51,11 +51,13 @@ import org.fife.ui.rtextarea.RTextScrollPane;
  *
  * @author Lincolzera
  */
-public class TelaPrincipalEsul extends javax.swing.JFrame {
+public class TelaPrincipalEsul extends javax.swing.JFrame implements ferramentas.RespostaHandler {
     
     private Map<File, RSyntaxTextArea> openFilesMap; // Para rastrear arquivos abertos e suas áreas de texto
     // O painelCodigo já é o jPanel3 (JTabbedPane agora)
     private final javax.swing.JTabbedPane painelCodigo;
+    private RSyntaxTextArea textAreaResultado;
+    private RSyntaxTextArea textAreaCodigo; // Nova área de texto para código
 
     public TelaPrincipalEsul() {
         getRootPane().putClientProperty("JRootPane.titleBarBackground", new Color(16,22,20));
@@ -65,10 +67,36 @@ public class TelaPrincipalEsul extends javax.swing.JFrame {
         setIconImage(new ImageIcon(getClass().getResource("/Imagens/esul.png")).getImage());
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         jPanelTerminal.setVisible(false);
+        panelResultado.setVisible(true);
         painelCodigo = jPanel3;
         setLocationRelativeTo(null);
         openFilesMap = new HashMap<>();
         configurarCaixaTexto();
+        
+        // Initialize textAreaResultado
+        textAreaResultado = new RSyntaxTextArea();
+        textAreaResultado.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
+        textAreaResultado.setCodeFoldingEnabled(true);
+        textAreaResultado.setAntiAliasingEnabled(true);
+        textAreaResultado.setFont(new java.awt.Font("Consolas", java.awt.Font.PLAIN, 14));
+        textAreaResultado.setBackground(new java.awt.Color(255, 255, 255));
+        textAreaResultado.setForeground(new java.awt.Color(0, 0, 0));
+        textAreaResultado.setLineWrap(true);
+        textAreaResultado.setWrapStyleWord(true);
+        scrollPaneResultado.setViewportView(textAreaResultado);
+        
+        // Initialize textAreaCodigo
+        textAreaCodigo = new RSyntaxTextArea();
+        textAreaCodigo.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
+        textAreaCodigo.setCodeFoldingEnabled(true);
+        textAreaCodigo.setAntiAliasingEnabled(true);
+        textAreaCodigo.setFont(new java.awt.Font("Consolas", java.awt.Font.PLAIN, 14));
+        textAreaCodigo.setBackground(new java.awt.Color(255, 255, 255));
+        textAreaCodigo.setForeground(new java.awt.Color(0, 0, 0));
+        textAreaCodigo.setLineWrap(true);
+        textAreaCodigo.setWrapStyleWord(true);
+        scrollPaneCodigo.setViewportView(textAreaCodigo);
+        
         jTreeArquivos.setCellRenderer(new FileTreeCellRenderer());
 jTreeArquivos.addTreeSelectionListener(new TreeSelectionListener() {
     @Override
@@ -241,7 +269,7 @@ private void configurarCaixaTexto() {
 
     // Adicione uma aba inicial vazia ou de "Boas-vindas"
     RSyntaxTextArea initialTextArea = createNewRSyntaxTextArea();
-    initialTextArea.setText("\n\n                             // Seu código aqui //\n                              ");
+    initialTextArea.setText("\n\n// Seu código aqui //\n                              ");
     // Usamos um objeto File dummy para a aba inicial, pois ela não representa um arquivo salvo.
     addFileTab(new File("Novo Arquivo.java"), initialTextArea); 
 }
@@ -297,6 +325,13 @@ private File getSelectedFile() {
         jScrollPane2 = new javax.swing.JScrollPane();
         jTreeArquivos = new javax.swing.JTree();
         jButton11 = new javax.swing.JButton();
+        panelResultado = new javax.swing.JPanel();
+        scrollPaneResultado = new javax.swing.JScrollPane();
+        jLabel3 = new javax.swing.JLabel();
+        btnFecharResultado = new javax.swing.JButton();
+        btnMinimizarResultado = new javax.swing.JButton();
+        scrollPaneCodigo = new javax.swing.JScrollPane();
+        btnCopiar = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem3 = new javax.swing.JMenuItem();
@@ -350,6 +385,8 @@ private File getSelectedFile() {
                 jButton5ActionPerformed(evt);
             }
         });
+
+        jPanel3.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(204, 204, 204), 1, true));
 
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(255, 211, 94));
@@ -440,7 +477,7 @@ private File getSelectedFile() {
                     .addComponent(jScrollPane1)
                     .addGroup(jPanelTerminalLayout.createSequentialGroup()
                         .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 976, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jButton10)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton9)))
@@ -489,6 +526,74 @@ private File getSelectedFile() {
             }
         });
 
+        panelResultado.setBackground(new java.awt.Color(42, 45, 44));
+
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(255, 211, 94));
+        jLabel3.setText("Resultado");
+
+        btnFecharResultado.setBackground(new java.awt.Color(255, 211, 94));
+        btnFecharResultado.setForeground(new java.awt.Color(16, 22, 20));
+        btnFecharResultado.setText("Fechar");
+        btnFecharResultado.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFecharResultadoActionPerformed(evt);
+            }
+        });
+
+        btnMinimizarResultado.setBackground(new java.awt.Color(255, 211, 94));
+        btnMinimizarResultado.setForeground(new java.awt.Color(16, 22, 20));
+        btnMinimizarResultado.setText("Minimizar");
+        btnMinimizarResultado.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnMinimizarResultadoActionPerformed(evt);
+            }
+        });
+
+        btnCopiar.setText("Copiar");
+        btnCopiar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCopiarActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout panelResultadoLayout = new javax.swing.GroupLayout(panelResultado);
+        panelResultado.setLayout(panelResultadoLayout);
+        panelResultadoLayout.setHorizontalGroup(
+            panelResultadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelResultadoLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelResultadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(scrollPaneResultado)
+                    .addGroup(panelResultadoLayout.createSequentialGroup()
+                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnMinimizarResultado)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnFecharResultado))
+                    .addComponent(scrollPaneCodigo)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelResultadoLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(btnCopiar)))
+                .addContainerGap())
+        );
+        panelResultadoLayout.setVerticalGroup(
+            panelResultadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelResultadoLayout.createSequentialGroup()
+                .addGap(8, 8, 8)
+                .addGroup(panelResultadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(btnFecharResultado)
+                    .addComponent(btnMinimizarResultado))
+                .addGap(18, 18, 18)
+                .addComponent(scrollPaneResultado, javax.swing.GroupLayout.PREFERRED_SIZE, 426, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnCopiar)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(scrollPaneCodigo, javax.swing.GroupLayout.PREFERRED_SIZE, 249, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -522,42 +627,45 @@ private File getSelectedFile() {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jButton5)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnAjuda)))
-                        .addGap(71, 71, 71)))
-                .addGap(50, 50, 50))
+                                .addComponent(btnAjuda)))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(panelResultado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(317, 317, 317))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(panelResultado, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 421, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 80, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel4)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addContainerGap()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jButton7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(jButton11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(btnAjuda)
-                                        .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(jButton8, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(18, 18, 18)
-                        .addComponent(jPanel3)))
-                .addGap(18, 18, 18)
-                .addComponent(jPanelTerminal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel1)
+                                .addGap(18, 18, 18)
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 421, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 102, Short.MAX_VALUE)
+                                .addComponent(jPanelTerminal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addComponent(jButton7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jButton11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(btnAjuda))
+                                            .addComponent(jButton8, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(18, 18, 18)
+                                .addComponent(jPanel3)
+                                .addGap(194, 194, 194)))))
                 .addGap(46, 46, 46))
         );
 
@@ -609,7 +717,7 @@ private File getSelectedFile() {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 1508, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 1856, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -632,36 +740,35 @@ private File getSelectedFile() {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        panelResultado.setVisible(true);
         RSyntaxTextArea currentTextArea = getSelectedTextArea();
-    if (currentTextArea == null) {
-        JOptionPane.showMessageDialog(this, "Nenhuma aba de código está aberta para gerar testes.");
-        return;
-    }
-
-    GeradorDeTesteJava g = new GeradorDeTesteJava("http://localhost:11434/", "qwen2.5-coder:3b", 0.5f);
-    TelaResposta t = new TelaResposta();
-    
-    try {
-        if (currentTextArea.getText().trim().isEmpty()){ // Use trim() para verificar se está vazio
-            JOptionPane.showMessageDialog(null, "A caixa de texto está vazia");
-        } else {
-            g.gerarTestes(currentTextArea.getText(), t);
-            t.setVisible(true);
-               
-            String userInput = currentTextArea.getText();
-            String aiResponse = t.resposta.getText();
-            String respostaLimpa = aiResponse.replaceAll("<[^>]*>", ""); // Remove tags HTML
-
-            // Salva no banco de dados
-            BD.saveInteraction(userInput, respostaLimpa);
+        if (currentTextArea == null) {
+            JOptionPane.showMessageDialog(this, "Nenhuma aba de código está aberta para gerar testes.");
+            return;
         }
-    } catch (Exception ex) {
-        Logger.getLogger(TelaPrincipalEsul.class.getName()).log(Level.SEVERE, null, ex);
-    }
+
+        GeradorDeTesteJava g = new GeradorDeTesteJava("http://localhost:11434/", "qwen2.5-coder:3b", 0.5f);
+        g.setRespostaHandler(this);
         
+        try {
+            if (currentTextArea.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(null, "A caixa de texto está vazia");
+            } else {
+                g.gerarTestes(currentTextArea.getText(), textAreaResultado);
+                
+                String userInput = currentTextArea.getText();
+                String aiResponse = textAreaResultado.getText() + "\n" + textAreaCodigo.getText();
+
+                // Salva no banco de dados
+                BD.saveInteraction(userInput, aiResponse);
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(TelaPrincipalEsul.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        panelResultado.setVisible(true);
         // Obtém a área de texto atual
         RSyntaxTextArea currentTextArea = getSelectedTextArea();
         if (currentTextArea == null) {
@@ -669,9 +776,9 @@ private File getSelectedFile() {
             return;
         }
 
-        // Cria instância do melhorador e da tela de resposta
+        // Cria instância do melhorador
         MelhoradorDeCodigo melhorador = new MelhoradorDeCodigo("http://localhost:11434/", "qwen2.5-coder:3b", 0.5f);
-        TelaResposta telaResposta = new TelaResposta();
+        melhorador.setRespostaHandler(this);
 
         try {
             // Verifica se há texto na área
@@ -687,31 +794,22 @@ private File getSelectedFile() {
             // Verifica se há texto selecionado
             if (textoSelecionado != null && !textoSelecionado.trim().isEmpty()) {
                 // Melhora apenas o texto selecionado
-                melhorador.melhorarSelecao(textoSelecionado, telaResposta);
+                melhorador.melhorarSelecao(textoSelecionado, textAreaResultado);
                 userInput = textoSelecionado;
             } else {
                 // Melhora o código inteiro
                 String codigoCompleto = currentTextArea.getText();
-                melhorador.melhorarCodigo(codigoCompleto, telaResposta);
+                melhorador.melhorarCodigo(codigoCompleto, textAreaResultado);
                 userInput = codigoCompleto;
             }
-
-            // Exibe a tela de resposta
-            telaResposta.setVisible(true);
             
-            // Captura resposta da IA e remove tags HTML
-            String aiResponse = telaResposta.resposta.getText();
-            String respostaLimpa = aiResponse.replaceAll("<[^>]*>", "");
+            // Captura resposta da IA
+            String aiResponse = textAreaResultado.getText() + "\n" + textAreaCodigo.getText();
 
-            // Salva a interação no banco de dados
-            BD.saveInteractionI(userInput, respostaLimpa);
-
+            // Salva no banco de dados
+            BD.saveInteraction(userInput, aiResponse);
         } catch (Exception ex) {
             Logger.getLogger(TelaPrincipalEsul.class.getName()).log(Level.SEVERE, null, ex);
-            JOptionPane.showMessageDialog(this, 
-                "Erro ao processar o código: " + ex.getMessage(),
-                "Erro",
-                JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 
@@ -801,7 +899,7 @@ JFileChooser fileChooser = new JFileChooser();
     }//GEN-LAST:event_btnAjudaActionPerformed
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
-      jPanelTerminal.setVisible(true);
+    jPanelTerminal.setVisible(true);
     jTextArea1.setText("");
 
     java.time.LocalDateTime agora = java.time.LocalDateTime.now();
@@ -941,6 +1039,74 @@ JFileChooser fileChooser = new JFileChooser();
         // Usamos um objeto File dummy para a aba inicial, pois ela não representa um arquivo salvo.
         addFileTab(new File("Novo.java"), initialTextArea2);
     }//GEN-LAST:event_jButton11ActionPerformed
+
+    private void btnFecharResultadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFecharResultadoActionPerformed
+        // TODO add your handling code here:
+        // Botão Fechar Terminal
+        panelResultado.setVisible(false);
+    }//GEN-LAST:event_btnFecharResultadoActionPerformed
+
+    private void btnMinimizarResultadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMinimizarResultadoActionPerformed
+        // TODO add your handling code here:
+        panelResultado.setVisible(false);
+    }//GEN-LAST:event_btnMinimizarResultadoActionPerformed
+
+    private void btnCopiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCopiarActionPerformed
+        if (textAreaCodigo != null && textAreaCodigo.getText().length() > 0) {
+            textAreaCodigo.selectAll();
+            textAreaCodigo.copy();
+            textAreaCodigo.setSelectionStart(0);
+            textAreaCodigo.setSelectionEnd(0);
+            JOptionPane.showMessageDialog(this, "Código copiado para a área de transferência!");
+        } else {
+            JOptionPane.showMessageDialog(this, "Não há código para copiar!");
+        }
+    }//GEN-LAST:event_btnCopiarActionPerformed
+
+    // Método para separar código e texto da resposta do Ollama
+    @Override
+    public void separarCodigoETexto(String resposta) {
+        StringBuilder texto = new StringBuilder();
+        StringBuilder codigo = new StringBuilder();
+        boolean dentroDoCodigo = false;
+        int indentacao = 0;
+        
+        String[] linhas = resposta.split("\n");
+        for (String linha : linhas) {
+            // Verifica se é início de bloco de código
+            if (linha.trim().startsWith("```java") || linha.trim().startsWith("```")) {
+                dentroDoCodigo = true;
+                continue;
+            }
+            
+            // Verifica se é fim de bloco de código
+            if (dentroDoCodigo && linha.trim().equals("```")) {
+                dentroDoCodigo = false;
+                continue;
+            }
+            
+            // Se estiver dentro do código, adiciona ao StringBuilder de código
+            if (dentroDoCodigo) {
+                codigo.append(linha).append("\n");
+            } else {
+                // Se não estiver dentro do código, verifica se a linha parece código por indentação
+                int espacosInicio = linha.length() - linha.replaceAll("^\\s+", "").length();
+                if (espacosInicio >= 4 && linha.trim().length() > 0) {
+                    codigo.append(linha).append("\n");
+                } else {
+                    texto.append(linha).append("\n");
+                }
+            }
+        }
+        
+        // Atualiza as áreas de texto
+        textAreaResultado.setText(texto.toString().trim());
+        textAreaCodigo.setText(codigo.toString().trim());
+        
+        // Posiciona o cursor no início
+        textAreaResultado.setCaretPosition(0);
+        textAreaCodigo.setCaretPosition(0);
+    }
     
     
     /**
@@ -982,6 +1148,9 @@ JFileChooser fileChooser = new JFileChooser();
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAjuda;
+    private javax.swing.JButton btnCopiar;
+    private javax.swing.JButton btnFecharResultado;
+    private javax.swing.JButton btnMinimizarResultado;
     private javax.swing.JButton jButton10;
     private javax.swing.JButton jButton11;
     private javax.swing.JButton jButton2;
@@ -994,6 +1163,7 @@ JFileChooser fileChooser = new JFileChooser();
     private javax.swing.JButton jButton9;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
@@ -1011,6 +1181,9 @@ JFileChooser fileChooser = new JFileChooser();
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTree jTreeArquivos;
+    private javax.swing.JPanel panelResultado;
+    private javax.swing.JScrollPane scrollPaneCodigo;
+    private javax.swing.JScrollPane scrollPaneResultado;
     // End of variables declaration//GEN-END:variables
 
 private DefaultMutableTreeNode findNode(DefaultMutableTreeNode root, File targetFile) {

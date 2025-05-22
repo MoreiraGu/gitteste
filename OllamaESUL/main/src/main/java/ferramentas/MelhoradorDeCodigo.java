@@ -4,13 +4,15 @@ import io.github.ollama4j.OllamaAPI;
 import io.github.ollama4j.models.response.OllamaResult;
 import io.github.ollama4j.utils.OptionsBuilder;
 import io.github.ollama4j.utils.Options;
-import GUI.TelaResposta;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import GUI.TelaPrincipalEsul;
 
 public class MelhoradorDeCodigo {
 
     private final OllamaAPI ollamaAPI;
     private final String model;
     private final Options options;
+    private RespostaHandler respostaHandler;
 
     public MelhoradorDeCodigo(String host, String model, float temperature) {
         this.ollamaAPI = new OllamaAPI(host);
@@ -22,21 +24,31 @@ public class MelhoradorDeCodigo {
                 .build();
     }
 
-    public void melhorarCodigo(String codigoJava, TelaResposta telaResposta) throws Exception {
+    public void setRespostaHandler(RespostaHandler handler) {
+        this.respostaHandler = handler;
+    }
+
+    public void melhorarCodigo(String codigoJava, RSyntaxTextArea textAreaResultado) throws Exception {
         String prompt = gerarPromptCompleto(codigoJava);
-        processarResposta(prompt, telaResposta);
+        processarResposta(prompt, textAreaResultado);
     }
 
-    public void melhorarSelecao(String codigoSelecionado, TelaResposta telaResposta) throws Exception {
+    public void melhorarSelecao(String codigoSelecionado, RSyntaxTextArea textAreaResultado) throws Exception {
         String prompt = gerarPromptSelecao(codigoSelecionado);
-        processarResposta(prompt, telaResposta);
+        processarResposta(prompt, textAreaResultado);
     }
 
-    private void processarResposta(String prompt, TelaResposta telaResposta) throws Exception {
+    private void processarResposta(String prompt, RSyntaxTextArea textAreaResultado) throws Exception {
         boolean raw = false;
         OllamaResult result = ollamaAPI.generate(model, prompt, raw, options);
-        String respostaFormatada = result.getResponse().replace("\n", "<br>");
-        telaResposta.resposta.setText("<html><body style='width: 400px;'>" + respostaFormatada + "</body></html>");
+        String resposta = result.getResponse();
+        
+        if (respostaHandler != null) {
+            respostaHandler.separarCodigoETexto(resposta);
+        } else {
+            textAreaResultado.setText(resposta);
+            textAreaResultado.setCaretPosition(0);
+        }
     }
 
     private String gerarPromptCompleto(String codigo) {
@@ -54,13 +66,17 @@ public class MelhoradorDeCodigo {
         - What was changed: [describe each change made]
         - Why it was changed: [explain the reason for the change]
         - How it was changed: [explain the solution applied]
-        - Code with the changes: [code]
+        - Code with the changes:
+        ```java
+        [your improved code here]
+        ```
 
         Rules:
         - Be clear and direct.
         - Translate the entire output to Brazilian Portuguese, only Brazilian Portuguese.
         - Summarize the information objectively.
         - Do not add extra explanations beyond what was requested.
+        - Always wrap the code in ```java and ``` markers.
         """ + codigo;
     }
 
@@ -79,7 +95,10 @@ public class MelhoradorDeCodigo {
         - What was changed: [describe each change made]
         - Why it was changed: [explain the reason for the change]
         - How it was changed: [explain the solution applied]
-        - Code with the changes: [code]
+        - Code with the changes:
+        ```java
+        [your improved code here]
+        ```
 
         Rules:
         - Be clear and direct.
@@ -87,6 +106,7 @@ public class MelhoradorDeCodigo {
         - Summarize the information objectively.
         - Do not add extra explanations beyond what was requested.
         - Focus only on the selected code segment.
+        - Always wrap the code in ```java and ``` markers.
         """ + codigo;
     }
 }
