@@ -57,10 +57,12 @@ public class MelhoradorDeCodigo {
         Your task:
         1. Read the complete Java code provided.
         2. Improve the entire code by:
-        - Optimizing variable names
-        - Enhancing clarity and readability
-        - Improving performance where possible
-        - Maintaining the original logic
+        - Enhancing code structure and organization
+        - Improving error handling and robustness
+        - Applying design patterns where appropriate
+        - Optimizing algorithms and data structures
+        - Improving code reusability
+        - Maintaining the original logic and variable names
 
         Answer format:
         - What was changed: [describe each change made]
@@ -86,7 +88,7 @@ public class MelhoradorDeCodigo {
         Your task:
         1. Read the selected Java code snippet provided.
         2. Improve only this specific code segment by:
-        - Optimizing variable names
+        - Keep the original variable names.
         - Enhancing clarity and readability
         - Improving performance where possible
         - Maintaining the original logic
@@ -107,6 +109,7 @@ public class MelhoradorDeCodigo {
         - Do not add extra explanations beyond what was requested.
         - Focus only on the selected code segment.
         - Always wrap the code in ```java and ``` markers.
+        - Do not change variable names.
         """ + codigo;
     }
 }
