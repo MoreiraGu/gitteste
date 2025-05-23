@@ -23,7 +23,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JFrame;
 import java.awt.Color;
 import java.awt.FlowLayout;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JButton;
@@ -245,7 +244,7 @@ private void addFileTab(File file, RSyntaxTextArea textArea) {
     closeButton.setContentAreaFilled(false); // Torna a área de conteúdo transparente
     closeButton.setBorderPainted(false); // Sem borda
     closeButton.setFocusPainted(false); // Sem borda de foco
-    closeButton.setForeground(Color.RED); // Colore o 'x' de vermelho
+    closeButton.setForeground(new Color(255,211,54)); // Colore o 'x' de vermelho
     
 
     tabTitlePanel.add(titleLabel);
@@ -353,10 +352,13 @@ private File getSelectedFile() {
         jMenuItem3 = new javax.swing.JMenuItem();
         jMenuItem4 = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
+        jMenuItem5 = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenu4 = new javax.swing.JMenu();
+        jMenuItem6 = new javax.swing.JMenuItem();
+        jMenuItem7 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(102, 102, 102));
@@ -367,6 +369,7 @@ private File getSelectedFile() {
         jPanel1.setPreferredSize(new java.awt.Dimension(1920, 1080));
         jPanel1.setLayout(new java.awt.BorderLayout());
 
+        jPanel3.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(204, 204, 204), 1, true));
         jPanel3.setPreferredSize(new java.awt.Dimension(500, 200));
         jPanel1.add(jPanel3, java.awt.BorderLayout.CENTER);
 
@@ -722,14 +725,28 @@ private File getSelectedFile() {
         jMenuBar1.add(jMenu1);
 
         jMenu2.setText("Run");
+
+        jMenuItem5.setText("Abrir Terminal");
+        jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem5ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem5);
+
         jMenuBar1.add(jMenu2);
 
         jMenu3.setText("LLM");
 
-        jMenuItem2.setText("jMenuItem2");
+        jMenuItem2.setText("Gerar teste");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
         jMenu3.add(jMenuItem2);
 
-        jMenuItem1.setText("jMenuItem1");
+        jMenuItem1.setText("Gerar Melhoria");
         jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem1ActionPerformed(evt);
@@ -740,6 +757,23 @@ private File getSelectedFile() {
         jMenuBar1.add(jMenu3);
 
         jMenu4.setText("Historicos");
+
+        jMenuItem6.setText("Melhoria");
+        jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem6ActionPerformed(evt);
+            }
+        });
+        jMenu4.add(jMenuItem6);
+
+        jMenuItem7.setText("Teste");
+        jMenuItem7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem7ActionPerformed(evt);
+            }
+        });
+        jMenu4.add(jMenuItem7);
+
         jMenuBar1.add(jMenu4);
 
         setJMenuBar(jMenuBar1);
@@ -987,7 +1021,49 @@ private File getSelectedFile() {
     }//GEN-LAST:event_jButton10ActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        // TODO add your handling code here:
+        panelResultado.setVisible(true);
+        // Obtém a área de texto atual
+        RSyntaxTextArea currentTextArea = getSelectedTextArea();
+        if (currentTextArea == null) {
+            JOptionPane.showMessageDialog(this, "Nenhuma aba de código está aberta para gerar melhoria.");
+            return;
+        }
+
+        // Cria instância do melhorador
+        MelhoradorDeCodigo melhorador = new MelhoradorDeCodigo("http://localhost:11434/", "qwen2.5-coder:3b", 0.5f);
+        melhorador.setRespostaHandler(this);
+
+        try {
+            // Verifica se há texto na área
+            if (currentTextArea.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(null, "A caixa de texto está vazia");
+                return;
+            }
+
+            // Obtém o texto selecionado ou todo o conteúdo
+            String textoSelecionado = currentTextArea.getSelectedText();
+            String userInput;
+
+            // Verifica se há texto selecionado
+            if (textoSelecionado != null && !textoSelecionado.trim().isEmpty()) {
+                // Melhora apenas o texto selecionado
+                melhorador.melhorarSelecao(textoSelecionado, textAreaResultado);
+                userInput = textoSelecionado;
+            } else {
+                // Melhora o código inteiro
+                String codigoCompleto = currentTextArea.getText();
+                melhorador.melhorarCodigo(codigoCompleto, textAreaResultado);
+                userInput = codigoCompleto;
+            }
+            
+            // Captura resposta da IA
+            String aiResponse = textAreaResultado.getText() + "\n" + textAreaCodigo.getText();
+
+            // Salva no banco de dados
+            BD.saveInteractionI(userInput, aiResponse);
+        } catch (Exception ex) {
+            Logger.getLogger(TelaPrincipalEsul.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
@@ -1099,6 +1175,49 @@ JFileChooser fileChooser = new JFileChooser();
         }
     }//GEN-LAST:event_btnCopiarActionPerformed
 
+    private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
+         jPanelTerminal.setVisible(true);
+    }//GEN-LAST:event_jMenuItem5ActionPerformed
+
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+             panelResultado.setVisible(true);
+        RSyntaxTextArea currentTextArea = getSelectedTextArea();
+        if (currentTextArea == null) {
+            JOptionPane.showMessageDialog(this, "Nenhuma aba de código está aberta para gerar testes.");
+            return;
+        }
+
+        GeradorDeTesteJava g = new GeradorDeTesteJava("http://localhost:11434/", "qwen2.5-coder:3b", 0.5f);
+        g.setRespostaHandler(this);
+        
+        try {
+            if (currentTextArea.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(null, "A caixa de texto está vazia");
+            } else {
+                g.gerarTestes(currentTextArea.getText(), textAreaResultado);
+                
+                String userInput = currentTextArea.getText();
+                String aiResponse = textAreaResultado.getText() + "\n" + textAreaCodigo.getText();
+
+                // Salva no banco de dados
+                BD.saveInteraction(userInput, aiResponse);
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(TelaPrincipalEsul.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
+
+    private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
+       TelaHistMelhoria telaHistorico = new TelaHistMelhoria(); 
+          telaHistorico.setVisible(true); 
+    }//GEN-LAST:event_jMenuItem6ActionPerformed
+
+    private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
+  
+    TelaHistTeste telaHistorico = new TelaHistTeste(); 
+    telaHistorico.setVisible(true); 
+    }//GEN-LAST:event_jMenuItem7ActionPerformed
+
     // Método para separar código e texto da resposta do Ollama
     @Override
     public void separarCodigoETexto(String resposta) {
@@ -1208,6 +1327,9 @@ JFileChooser fileChooser = new JFileChooser();
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
+    private javax.swing.JMenuItem jMenuItem5;
+    private javax.swing.JMenuItem jMenuItem6;
+    private javax.swing.JMenuItem jMenuItem7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JTabbedPane jPanel3;
