@@ -79,8 +79,15 @@ public class TelaPrincipalEsul extends javax.swing.JFrame implements ferramentas
         textAreaResultado.setCodeFoldingEnabled(true);
         textAreaResultado.setAntiAliasingEnabled(true);
         textAreaResultado.setFont(new java.awt.Font("Consolas", java.awt.Font.PLAIN, 14));
-        textAreaResultado.setBackground(new java.awt.Color(255, 255, 255));
-        textAreaResultado.setForeground(new java.awt.Color(0, 0, 0));
+        try {
+            InputStream in = getClass().getResourceAsStream("/org/fife/ui/rsyntaxtextarea/themes/dark.xml");
+            if (in != null) {
+                Theme theme = Theme.load(in);
+                theme.apply(textAreaResultado);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         textAreaResultado.setLineWrap(true);
         textAreaResultado.setWrapStyleWord(true);
         scrollPaneResultado.setViewportView(textAreaResultado);
@@ -91,8 +98,15 @@ public class TelaPrincipalEsul extends javax.swing.JFrame implements ferramentas
         textAreaCodigo.setCodeFoldingEnabled(true);
         textAreaCodigo.setAntiAliasingEnabled(true);
         textAreaCodigo.setFont(new java.awt.Font("Consolas", java.awt.Font.PLAIN, 14));
-        textAreaCodigo.setBackground(new java.awt.Color(255, 255, 255));
-        textAreaCodigo.setForeground(new java.awt.Color(0, 0, 0));
+        try {
+            InputStream in = getClass().getResourceAsStream("/org/fife/ui/rsyntaxtextarea/themes/dark.xml");
+            if (in != null) {
+                Theme theme = Theme.load(in);
+                theme.apply(textAreaCodigo);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         textAreaCodigo.setLineWrap(true);
         textAreaCodigo.setWrapStyleWord(true);
         scrollPaneCodigo.setViewportView(textAreaCodigo);
@@ -528,6 +542,8 @@ private File getSelectedFile() {
 
         panelResultado.setBackground(new java.awt.Color(42, 45, 44));
 
+        scrollPaneResultado.setMaximumSize(new java.awt.Dimension(268, 763));
+
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 211, 94));
         jLabel3.setText("Resultado");
@@ -550,6 +566,8 @@ private File getSelectedFile() {
             }
         });
 
+        scrollPaneCodigo.setMaximumSize(new java.awt.Dimension(268, 763));
+
         btnCopiar.setText("Copiar");
         btnCopiar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -564,14 +582,14 @@ private File getSelectedFile() {
             .addGroup(panelResultadoLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelResultadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(scrollPaneResultado)
+                    .addComponent(scrollPaneCodigo, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 256, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(scrollPaneResultado, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 256, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(panelResultadoLayout.createSequentialGroup()
                         .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btnMinimizarResultado)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnFecharResultado))
-                    .addComponent(scrollPaneCodigo)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelResultadoLayout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(btnCopiar)))
@@ -590,8 +608,8 @@ private File getSelectedFile() {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnCopiar)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(scrollPaneCodigo, javax.swing.GroupLayout.PREFERRED_SIZE, 249, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(scrollPaneCodigo, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(8, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -630,13 +648,13 @@ private File getSelectedFile() {
                                 .addComponent(btnAjuda)))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelResultado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(317, 317, 317))
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(panelResultado, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(panelResultado, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -644,7 +662,7 @@ private File getSelectedFile() {
                                 .addComponent(jLabel1)
                                 .addGap(18, 18, 18)
                                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 421, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 102, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jPanelTerminal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(jLabel4)
@@ -717,7 +735,9 @@ private File getSelectedFile() {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 1856, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 1540, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -807,7 +827,7 @@ private File getSelectedFile() {
             String aiResponse = textAreaResultado.getText() + "\n" + textAreaCodigo.getText();
 
             // Salva no banco de dados
-            BD.saveInteraction(userInput, aiResponse);
+            BD.saveInteractionI(userInput, aiResponse);
         } catch (Exception ex) {
             Logger.getLogger(TelaPrincipalEsul.class.getName()).log(Level.SEVERE, null, ex);
         }
