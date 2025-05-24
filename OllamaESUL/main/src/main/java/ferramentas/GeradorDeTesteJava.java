@@ -38,7 +38,36 @@ public class GeradorDeTesteJava {
         String resposta = result.getResponse();
         
         if (respostaHandler != null) {
-            respostaHandler.separarCodigoETexto(resposta);
+            StringBuilder texto = new StringBuilder();
+            StringBuilder codigo = new StringBuilder();
+            boolean dentroDoCodigo = false;
+            
+            String[] linhas = resposta.split("\n");
+            for (String linha : linhas) {
+                if (linha.trim().startsWith("```java") || linha.trim().startsWith("```")) {
+                    dentroDoCodigo = true;
+                    continue;
+                }
+                
+                if (dentroDoCodigo && linha.trim().equals("```")) {
+                    dentroDoCodigo = false;
+                    continue;
+                }
+                
+                if (dentroDoCodigo) {
+                    codigo.append(linha).append("\n");
+                } else {
+                    int espacosInicio = linha.length() - linha.replaceAll("^\\s+", "").length();
+                    if (espacosInicio >= 4 && linha.trim().length() > 0) {
+                        codigo.append(linha).append("\n");
+                    } else {
+                        texto.append(linha).append("\n");
+                    }
+                }
+            }
+            
+            textAreaResultado.setText(texto.toString().trim() + "\n\n" + codigo.toString().trim());
+            textAreaResultado.setCaretPosition(0);
         } else {
             textAreaResultado.setText(resposta);
             textAreaResultado.setCaretPosition(0);

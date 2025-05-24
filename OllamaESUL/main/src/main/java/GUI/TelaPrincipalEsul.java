@@ -824,7 +824,7 @@ private File getSelectedFile() {
                 g.gerarTestes(currentTextArea.getText(), textAreaResultado);
                 
                 String userInput = currentTextArea.getText();
-                String aiResponse = textAreaResultado.getText() + "\n" + textAreaCodigo.getText();
+                String aiResponse = textAreaResultado.getText();
 
                 // Salva no banco de dados
                 BD.saveInteraction(userInput, aiResponse);
@@ -1180,7 +1180,7 @@ JFileChooser fileChooser = new JFileChooser();
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-             panelResultado.setVisible(true);
+        panelResultado.setVisible(true);
         RSyntaxTextArea currentTextArea = getSelectedTextArea();
         if (currentTextArea == null) {
             JOptionPane.showMessageDialog(this, "Nenhuma aba de código está aberta para gerar testes.");
@@ -1197,7 +1197,7 @@ JFileChooser fileChooser = new JFileChooser();
                 g.gerarTestes(currentTextArea.getText(), textAreaResultado);
                 
                 String userInput = currentTextArea.getText();
-                String aiResponse = textAreaResultado.getText() + "\n" + textAreaCodigo.getText();
+                String aiResponse = textAreaResultado.getText();
 
                 // Salva no banco de dados
                 BD.saveInteraction(userInput, aiResponse);
