@@ -27,7 +27,7 @@ Sprint            |   Início   |    Fim     | Status  |
 |Sprint Review 02 | 28/04/2025 | 02/05/2025 | concluído |
 |03               | 05/05/2025 | 25/05/2025 | em andamento |
 |Sprint Review 03 | 26/05/2025 | 28/05/2025 | a fazer |
-|Feira de Soluções| 29/05/2025 | 29/05/2025 | a fazer |
+|Feira de Soluções| 17/06/2025 | 17/06/2025 | a fazer |
 
 <br>
 
@@ -95,6 +95,21 @@ para criar software, a interface de chatbot não é a melhor para este tipo de t
 | 🟥 | Como usuário, quero uma barra lateral com atalhos como modo escuro/claro, para ter acesso rápido a funcionalidades da IDE. | 6 | 3 |
 | 🟨 | Como usuário, quero uma interface visual do banco de dados com cores e botões estilizados, combinando com o visual da IDE. | 10 | 3 |
 | 🟨 | Como usuário, quero acessar instruções da IDE tanto online (site) quanto offline (PDF), para entender melhor como usar os recursos. | 12 | 3 |
+
+---
+
+<br>
+
+# Vídeos do Projeto
+
+## Funcionalidade: Compilar código
+![llm1](https://github.com/user-attachments/assets/6aff84a9-7d66-4e40-ae3e-f5e056f0fe1c)
+
+## Funcionalidade: Gerar testes
+![llm2](https://github.com/user-attachments/assets/91d1bfb5-df6c-483d-afed-e9c833231536)
+
+## Funcionalidade: Gerar melhoria
+![llm3](https://github.com/user-attachments/assets/0f97a22d-983c-4027-8f19-220fbdeeab50)
 
 ---
 
